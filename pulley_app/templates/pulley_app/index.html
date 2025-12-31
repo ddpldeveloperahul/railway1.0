@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulley Detection</title>
+
+  <!-- Bootstrap + Tailwind -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f9f9f9;
+      color: #222;
+    }
+
+    .navbar {
+      background-color: #002147;
+      padding: 0.8rem 2rem;
+    }
+
+    .navbar-brand span {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: white;
+      margin-left: 10px;
+    }
+
+    .navbar img {
+      width: 45px;
+      height: 45px;
+    }
+
+    .navbar-nav .nav-link {
+      color: white;
+      font-weight: 500;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: #ffc107;
+    }
+
+    /* Hamburger Menu Styles */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 4px;
+    }
+
+    .hamburger span {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    .mobile-menu {
+      display: none;
+      background-color: #002147;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .mobile-menu.active {
+      display: block;
+    }
+
+    .mobile-menu a {
+      display: block;
+      color: white;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .mobile-menu a:hover {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    .mobile-menu .btn-signup {
+      background-color: #ffc107;
+      color: #002147;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    .mobile-menu .btn-signup:hover {
+      background-color: #ffb300;
+    }
+
+    /* Desktop Navigation */
+    .desktop-nav {
+      display: flex;
+    }
+
+    /* Media Query for Mobile */
+    @media (max-width: 991px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+    }
+
+    /* Hero Carousel Styles */
+    .hero {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero .carousel-item {
+      height: 500px;
+      position: relative;
+    }
+
+    .hero .carousel-item img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      filter: brightness(0.55);
+    }
+
+    .hero .carousel-caption {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      width: 90%;
+      max-width: 900px;
+    }
+
+    .hero .carousel-caption h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero .carousel-caption p {
+      font-size: 1.2rem;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero .carousel-indicators button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin: 0 5px;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .hero .carousel-indicators button.active {
+      background-color: #ffc107;
+    }
+
+    .hero .carousel-control-prev,
+    .hero .carousel-control-next {
+      width: 5%;
+      opacity: 0.7;
+    }
+
+    .hero .carousel-control-prev:hover,
+    .hero .carousel-control-next:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .hero .carousel-item {
+        height: 400px;
+      }
+      
+      .hero .carousel-caption h1 {
+        font-size: 1.8rem;
+      }
+      
+      .hero .carousel-caption p {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero .carousel-item {
+        height: 350px;
+      }
+      
+      .hero .carousel-caption h1 {
+        font-size: 1.5rem;
+      }
+      
+      .hero .carousel-caption p {
+        font-size: 0.9rem;
+      }
+    }
+
+    .search-box {
+      background: white;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: -3rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .services, .about, .routes, .reviews, .contact {
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+
+    .card {
+      border: none;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      height: 200px;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .footer {
+    background-color: #002147;
+    color: white;
+    padding: 0;
+  }
+
+  .footer a:hover {
+    opacity: 1 !important;
+    color: #ffc107 !important;
+  }
+
+  .social-icons a:hover {
+    transform: translateY(-3px);
+  }
+
+    .routes {
+  padding: 60px 0;
+  overflow: hidden;
+}
+
+.routes-carousel-wrapper {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.routes-carousel-track {
+  display: flex;
+  gap: 20px;
+  animation: scroll-reverse 35s linear infinite;
+  width: max-content;
+}
+
+.routes-carousel-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.routes-carousel-track .col-md-4 {
+  flex-shrink: 0;
+  width: 350px;
+}
+
+.route-card {
+  height: 220px;
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  background-position: center !important;
+  background-size: cover !important;
+}
+
+.route-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 33, 71, 0.8), transparent);
+  transition: all 0.3s ease;
+}
+
+.route-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.route-card:hover::before {
+  background: linear-gradient(to top, rgba(0, 33, 71, 0.9), rgba(0, 33, 71, 0.3));
+}
+
+.route-card h4 {
+  position: relative;
+  z-index: 1;
+  color: white;
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .routes-carousel-track .col-md-4 {
+    width: 280px;
+  }
+  
+  .route-card {
+    height: 180px;
+  }
+
+  .route-card h4 {
+    font-size: 1.1rem;
+  }
+}
+
+    .testimonials-section {
+        background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+        padding: 10px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .testimonials-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(11, 116, 222, 0.03) 0%, transparent 70%);
+        animation: rotate 30s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .testimonials-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .section-title {
+        font-size: 42px;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        text-shadow: 0 2px 20px rgba(11, 116, 222, 0.5);
+    }
+
+    .section-title i {
+        color: #0b74de;
+        font-size: 36px;
+    }
+
+    .section-subtitle {
+        font-size: 18px;
+        color: #94a3b8;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 32px;
+        margin-bottom: 60px;
+    }
+
+    .testimonial-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+        border: 2px solid rgba(11, 116, 222, 0.3);
+        border-radius: 20px;
+        padding: 32px;
+        backdrop-filter: blur(10px);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .testimonial-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(11, 116, 222, 0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .testimonial-card:hover::before {
+        opacity: 1;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(11, 116, 222, 0.6);
+        box-shadow: 0 20px 60px rgba(11, 116, 222, 0.3);
+    }
+
+    .testimonial-header {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .user-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 3px solid #0b74de;
+        object-fit: cover;
+        box-shadow: 0 4px 16px rgba(11, 116, 222, 0.4);
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #667eea;
+        margin: 0 0 4px 0;
+    }
+
+    .user-role {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .rating {
+        display: flex;
+        gap: 4px;
+    }
+
+    .rating i {
+        color: #fbbf24;
+        font-size: 14px;
+    }
+
+    .testimonial-body {
+        position: relative;
+        z-index: 1;
+    }
+
+    .testimonial-text {
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+        font-style: italic;
+    }
+
+    .testimonial-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .location {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #0b74de;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .location i {
+        font-size: 12px;
+    }
+
+    /* Stats Section */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-top: 60px;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, rgba(11, 116, 222, 0.15), rgba(11, 116, 222, 0.08));
+        border: 2px solid rgba(11, 116, 222, 0.4);
+        border-radius: 16px;
+        padding: 32px 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        background: linear-gradient(135deg, rgba(11, 116, 222, 0.2), rgba(11, 116, 222, 0.1));
+        box-shadow: 0 12px 40px rgba(11, 116, 222, 0.3);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #0b74de, #2563eb);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 8px 24px rgba(11, 116, 222, 0.4);
+    }
+
+    .stat-icon i {
+        color: #fff;
+        font-size: 26px;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 800;
+        color: #fff;
+        margin: 0 0 4px 0;
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 2px 10px rgba(11, 116, 222, 0.3);
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .testimonials-section {
+            padding: 60px 16px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+        }
+
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .testimonial-card {
+            padding: 24px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .stat-card {
+            padding: 24px 20px;
+        }
+    }
+
+    .gallery {
+  padding: 60px 0;
+  overflow: hidden;
+}
+
+.carousel-wrapper {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 20px;
+  animation: scroll 30s linear infinite;
+  width: max-content;
+}
+
+.carousel-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: 350px;
+  height: 280px;
+  flex-shrink: 0;
+}
+
+.gallery-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+}
+
+.gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 33, 71, 0.95), transparent);
+  color: white;
+  padding: 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-overlay {
+  transform: translateY(0);
+}
+
+.gallery-overlay h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.gallery-overlay p {
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .gallery-item {
+    width: 280px;
+    height: 220px;
+  }
+}
+    .video-section {
+    padding: 2rem 1rem;
+  }
+
+  .video-container {
+    position: relative;
+    background-color: #000;
+    width: 100%;
+  }
+
+  .video-container video {
+    display: block;
+    width: 100%;
+    height: 500px;
+  }
+  .info-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  }
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .stat-box:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    transform: translateY(-3px);
+  }
+
+  .metric-card:hover {
+    transform: translateY(-5px);
+  }
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+  .form-control:focus {
+    background: white !important;
+    border-color: #0066cc !important;
+    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1) !important;
+    outline: none;
+  }
+
+  .class-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-color: white !important;
+  }
+
+  .tab-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  button[type="submit"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 102, 204, 0.5) !important;
+  }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-light sticky-top">
+    <div class="container-fluid px-lg-4 d-flex justify-content-between align-items-center position-relative">
+  
+      <!-- Logo -->
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img
+          src="https://www.bing.com/th/id/OIP.5YGzsb62dMxHnIwvo20uCAHaEv?w=245&h=211&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2"
+          alt="Logo"
+          class="rounded-circle border border-2 border-light me-2"
+          style="width: 45px; height: 45px; object-fit: cover;"
+        />
+        <span class="text-white fw-semibold fs-5">Pulley Detection</span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="desktop-nav justify-content-center align-items-center gap-4 flex-grow-1">
+        <a href="{% url 'railway' %}" class="nav-link text-white fw-semibold">Home</a>
+        <a href="{% url 'employee' %}" class="nav-link text-white fw-semibold">Employees</a>
+        <a href="{% url 'services' %}" class="nav-link text-white fw-semibold">Services</a>
+      </div>
+
+      <!-- Desktop Right Buttons -->
+      <div class="desktop-nav gap-3 align-items-center">
+        {% if user.is_authenticated %}
+        <span class="text-white fw-semibold">Welcome {{ user.username | capfirst }}</span>
+        <a href="{% url 'logout' %}" class="bg-warning text-dark fw-semibold px-3 py-1 rounded-pill text-decoration-none">Logout</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="bg-info text-dark fw-semibold px-3 py-1 rounded-pill text-decoration-none">Login</a>
+        <a href="{% url 'signup' %}" class="bg-warning text-dark fw-semibold px-3 py-1 rounded-pill text-decoration-none">Sign Up</a>
+        {% endif  %}
+      </div>
+
+      <!-- Hamburger Menu (Mobile) -->
+      <div class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div class="mobile-menu" id="mobileMenu">
+        <a href="{% url 'railway' %}">Home</a>
+        <a href="{% url 'employee' %}">Employee</a>
+        <a href="{% url 'services' %}">Services</a>
+        {% if user.is_authenticated %}
+          <span class="text-white fw-semibold">Welcome {{ user.username | capfirst }}</span>
+          <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn-login">Login</a>
+          <a href="{% url 'signup' %}" class="btn-signup">Sign Up</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Carousel -->
+  <section class="hero">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+      </div>
+      
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="https://i.pinimg.com/736x/cd/42/72/cd42724c88a06428e915be9ef1d7153c.jpg" class="d-block w-100" alt="Indian Railway 1">
+          <div class="carousel-caption">
+            <h1>Traction Distribution Department (TRD) Solapur</h1>
+            <p>"The Pulley Distance Detector helps engineers and technicians analyze pulley spacing accurately using image processing."</p>
+          </div>
+        </div>
+        
+        <div class="carousel-item">
+          <img src="https://i.pinimg.com/1200x/6e/49/7f/6e497fc31f986d412997ca3f69fd9b8b.jpg" class="d-block w-100" alt="Indian Railway 2">
+          <div class="carousel-caption">
+            <h1>Traction Distribution Department (TRD) Solapur</h1>
+            <p>"The Pulley Distance Detector helps engineers and technicians analyze pulley spacing accurately using image processing."</p>
+          </div>
+        </div>
+        
+        <div class="carousel-item">
+          <img src="https://i.pinimg.com/1200x/16/3b/2a/163b2a57cda323bfc7e9adaac4589d6a.jpg" class="d-block w-100" alt="Indian Railway 3">
+          <div class="carousel-caption">
+            <h1>Traction Distribution Department (TRD) Solapur</h1>
+            <p>"The Pulley Distance Detector helps engineers and technicians analyze pulley spacing accurately using image processing."</p>
+          </div>
+        </div>
+        
+        <div class="carousel-item">
+          <img src="https://t3.ftcdn.net/jpg/03/55/57/92/360_F_355579231_zxxhlUgUOUAIhrvxtEMYqjkEaZaUSUDI.jpg" class="d-block w-100" alt="Indian Railway 4">
+          <div class="carousel-caption">
+            <h1>Traction Distribution Department (TRD) Solapur</h1>
+            <p>"The Pulley Distance Detector helps engineers and technicians analyze pulley spacing accurately using image processing."</p>
+          </div>
+        </div>
+      </div>
+      
+      <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about container my-2">
+    <div class="row align-items-center g-4">
+      
+      <!-- Image Section -->
+      <div class="col-md-6 text-center">
+        <div class="flip-card" style="perspective: 1000px; height: 400px;">
+          <div class="flip-card-inner" style="position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d;">
+            
+            <!-- Front Side (Image) -->
+            <div class="flip-card-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden;">
+              <img src="./static/images/ThreePulley.png"
+                  alt="About Indian Railway"
+                  class="img-fluid rounded-4 w-100 h-100"
+                  style="object-fit: cover; box-shadow: 0 20px 50px rgba(0, 33, 71, 0.4), 0 10px 25px rgba(0, 33, 71, 0.2);">
+            </div>
+            
+            <!-- Back Side (Content) -->
+            <div class="flip-card-back" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: linear-gradient(135deg, #002147 0%, #0066cc 100%); border-radius: 1rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 20px 50px rgba(0, 33, 71, 0.4), 0 10px 25px rgba(0, 33, 71, 0.2);">
+              <div class="text-center">
+                <div style="width: 80px; height: 80px; background: rgba(255, 193, 7, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                  <i class="fas fa-cogs" style="font-size: 2.5rem; color: #ffc107;"></i>
+                </div>
+                <h3 class="fw-bold text-white mb-3">Advanced Detection</h3>
+                <p class="text-white mb-3" style="opacity: 0.9; line-height: 1.6;">
+                  Our cutting-edge pulley detection system uses AI-powered image processing to deliver precise measurements with 99.8% accuracy.
+                </p>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                  <span class="badge" style="background: rgba(255, 193, 7, 0.2); color: #ffc107; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem;">AI Powered</span>
+                  <span class="badge" style="background: rgba(255, 193, 7, 0.2); color: #ffc107; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem;">Real-time</span>
+                  <span class="badge" style="background: rgba(255, 193, 7, 0.2); color: #ffc107; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem;">99.8% Accurate</span>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Section -->
+      <div class="col-md-6 text-start">
+        <h2 class="fw-bold text-primary mb-3 section-title">About Pulley Detection</h2>
+        <p class="text-secondary">
+          Pulley Detections connects millions of lives daily across 7,000+ stations. 
+          With one of the largest network in the world, it drives progress, unity, and exploration.
+        </p>
+        <p class="text-secondary">
+          We aim to make travel more accessible, efficient, and enjoyable for everyone. 
+          Our new digital initiatives bring the railway experience to your fingertips.
+        </p>
+        <p class="text-secondary">
+          We aim to make travel more accessible, efficient, and enjoyable for everyone. 
+          Our new digital initiatives bring the railway experience to your fingertips. 
+          <p class="text-secondary">
+          We aim to make travel more accessible, efficient, and enjoyable for everyone. 
+        </p>
+        </p>
+        <a href="#" class="btn btn-outline-primary mt-3 px-4 py-2 fw-semibold">
+          Learn More
+        </a>
+      </div>
+      
+    </div>
+  </section>
+
+
+  <!-- Gallery Section -->
+<section class="gallery">
+  <div class="container-fluid">
+    <h2 class="fw-bold text-primary mb-4 text-center section-title">Pulley Detection Gallery</h2>
+    <p class="text-secondary text-center mb-5">Explore our advanced pulley detection system in action</p>
+    
+    <div class="carousel-wrapper">
+      <div class="carousel-track">
+        <!-- Gallery Item 1 -->
+        <div class="gallery-item">
+          <img src=".\static\images\Image4.jpg" alt="Pulley Detection 1">
+          <div class="gallery-overlay">
+            <h5>Detection Analysis</h5>
+            <p>Advanced image processing for accurate measurements</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 2 -->
+        <div class="gallery-item">
+          <img src=".\static\images\Image5.png" alt="Pulley Detection 2">
+          <div class="gallery-overlay">
+            <h5>Distance Calculation</h5>
+            <p>Precise pulley spacing measurements</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 3 -->
+        <div class="gallery-item">
+          <img src=".\static\images\Image1.jpg" alt="Pulley Detection 3">
+          <div class="gallery-overlay">
+            <h5>Real-time Processing</h5>
+            <p>Instant analysis and results</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 4 -->
+        <div class="gallery-item">
+          <img src=".\static\images\Image2.jpg" alt="Pulley Detection 4">
+          <div class="gallery-overlay">
+            <h5>System Integration</h5>
+            <p>Seamless railway maintenance workflow</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 5 -->
+        <div class="gallery-item">
+          <img src=".\static\images\Image3.jpg" alt="Pulley Detection 5">
+          <div class="gallery-overlay">
+            <h5>Quality Inspection</h5>
+            <p>Automated quality control checks</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 6 -->
+        <div class="gallery-item">
+          <img src=".\static\images\ThreePulley.png" alt="Pulley Detection 6">
+          <div class="gallery-overlay">
+            <h5>Technical Excellence</h5>
+            <p>State-of-the-art detection technology</p>
+          </div>
+        </div>
+
+        <!-- Duplicate items for seamless loop -->
+        <div class="gallery-item">
+          <img src=".\static\images\Image4.jpg" alt="Pulley Detection 1">
+          <div class="gallery-overlay">
+            <h5>Detection Analysis</h5>
+            <p>Advanced image processing for accurate measurements</p>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src=".\static\images\Image5.png" alt="Pulley Detection 2">
+          <div class="gallery-overlay">
+            <h5>Distance Calculation</h5>
+            <p>Precise pulley spacing measurements</p>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src=".\static\images\Image1.jpg" alt="Pulley Detection 3">
+          <div class="gallery-overlay">
+            <h5>Real-time Processing</h5>
+            <p>Instant analysis and results</p>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src=".\static\images\Image2.jpg" alt="Pulley Detection 4">
+          <div class="gallery-overlay">
+            <h5>System Integration</h5>
+            <p>Seamless railway maintenance workflow</p>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src=".\static\images\Image3.jpg" alt="Pulley Detection 5">
+          <div class="gallery-overlay">
+            <h5>Quality Inspection</h5>
+            <p>Automated quality control checks</p>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src=".\static\images\ThreePulley.png" alt="Pulley Detection 6">
+          <div class="gallery-overlay">
+            <h5>Technical Excellence</h5>
+            <p>State-of-the-art detection technology</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <!-- Video Section -->
+  <section class="video-section bg-light py-5">
+    <div class="container">
+      <h2 class="fw-bold text-primary mb-4 text-center section-title">Pulley Detection in Action</h2>
+      <p class="text-secondary text-center mb-5">Experience the journey of Indian Railways</p>
+      
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <div class="video-container rounded-3 shadow-lg overflow-hidden">
+            <video 
+              class="w-100" 
+              autoplay 
+              loop 
+              muted 
+              playsinline
+              controls
+              style="height: 500px; object-fit: cover;">
+              <source src="{% static './video/RailwayVod.mp4' %}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+    <!-- Train Pulley Information Section -->
+    <section class="pulley-info-section py-5" style="background-color: #002147;">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            
+            <!-- Header -->
+            <div class="text-center mb-5">
+              <div class="icon-badge mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #2d386d 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);">
+                <i class="fas fa-cog fa-2x text-white"></i>
+              </div>
+              <h2 class="fw-bold mb-3" style="color: #667eea; font-size: 2.5rem;">Understanding Train Pulleys</h2>
+              <p class="text-white-50 mb-4" style="line-height: 1.8; font-size: clamp(0.95rem, 2vw, 1.25rem);">The Backbone of Railway Mechanics</p>
+            </div>
+
+            <!-- Content Cards -->
+            <div class="row g-4 mb-4">
+              
+              <!-- Card 1 -->
+              <div class="col-md-6">
+                <div class="info-card h-100 p-4" style="background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); border-left: 5px solid #667eea;">
+                  <div class="d-flex align-items-start mb-3">
+                    <div class="icon-box me-3" style="width: 50px; height: 50px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-info-circle fa-lg" style="color: #667eea;"></i>
+                    </div>
+                    <div>
+                      <h4 class="fw-bold mb-2" style="color: #002147;">What Are Train Pulleys?</h4>
+                    </div>
+                  </div>
+                  <p class="text-secondary mb-0" style="line-height: 1.8;">
+                    Train pulleys are essential mechanical components that facilitate the smooth operation of railway systems. These rotating wheels with grooved rims work with belts or cables to transfer power and motion, ensuring efficient train operations and passenger safety.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="col-md-6">
+                <div class="info-card h-100 p-4" style="background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); border-left: 5px solid #764ba2;">
+                  <div class="d-flex align-items-start mb-3">
+                    <div class="icon-box me-3" style="width: 50px; height: 50px; background: rgba(118, 75, 162, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-tasks fa-lg" style="color: #764ba2;"></i>
+                    </div>
+                    <div>
+                      <h4 class="fw-bold mb-2" style="color: #002147;">Critical Functions</h4>
+                    </div>
+                  </div>
+                  <p class="text-secondary mb-0" style="line-height: 1.8;">
+                    Pulleys serve multiple vital roles in railway operations including power transmission, tension adjustment, load distribution, and speed regulation. Their proper functioning directly impacts train performance, fuel efficiency, and overall operational safety.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="col-md-6">
+                <div class="info-card h-100 p-4" style="background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); border-left: 5px solid #ffc107;">
+                  <div class="d-flex align-items-start mb-3">
+                    <div class="icon-box me-3" style="width: 50px; height: 50px; background: rgba(255, 193, 7, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-exclamation-triangle fa-lg" style="color: #ffc107;"></i>
+                    </div>
+                    <div>
+                      <h4 class="fw-bold mb-2" style="color: #002147;">Why Monitoring Matters</h4>
+                    </div>
+                  </div>
+                  <p class="text-secondary mb-0" style="line-height: 1.8;">
+                    Regular inspection and accurate distance measurement between pulleys are crucial for preventing mechanical failures, reducing wear and tear, and avoiding costly breakdowns. Improper spacing can lead to belt slippage, increased friction, and potential safety hazards.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="col-md-6">
+                <div class="info-card h-100 p-4" style="background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); border-left: 5px solid #2ebf91;">
+                  <div class="d-flex align-items-start mb-3">
+                    <div class="icon-box me-3" style="width: 50px; height: 50px; background: rgba(46, 191, 145, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-microchip fa-lg" style="color: #2ebf91;"></i>
+                    </div>
+                    <div>
+                      <h4 class="fw-bold mb-2" style="color: #002147;">Modern Detection Systems</h4>
+                    </div>
+                  </div>
+                  <p class="text-secondary mb-0" style="line-height: 1.8;">
+                    Advanced image processing technology now enables precise, automated pulley distance detection. Our system uses computer vision to analyze pulley positioning, calculate exact measurements, and provide real-time maintenance alerts to engineering teams.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Statistics Bar -->
+            <div class="stats-bar p-4 mt-4" style="background: linear-gradient(135deg, #2b3256 0%, #764ba2 100%); border-radius: 20px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+              <div class="row text-center text-white">
+                <div class="col-6 col-md-3 mb-3 mb-md-0">
+                  <div class="stat-item">
+                    <h3 class="fw-bold mb-1" style="font-size: 2rem;">99.8%</h3>
+                    <p class="mb-0 opacity-90" style="font-size: 0.9rem;">Accuracy Rate</p>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3 mb-3 mb-md-0">
+                  <div class="stat-item">
+                    <h3 class="fw-bold mb-1" style="font-size: 2rem;">24/7</h3>
+                    <p class="mb-0 opacity-90" style="font-size: 0.9rem;">Monitoring</p>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="stat-item">
+                    <h3 class="fw-bold mb-1" style="font-size: 2rem;">5 Sec</h3>
+                    <p class="mb-0 opacity-90" style="font-size: 0.9rem;">Detection Time</p>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="stat-item">
+                    <h3 class="fw-bold mb-1" style="font-size: 2rem;">1000+</h3>
+                    <p class="mb-0 opacity-90" style="font-size: 0.9rem;">Daily Scans</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  <!-- Popular Routes -->
+    <section class="routes bg-light">
+      <div class="container-fluid">
+        <h2 class="fw-bold mb-4 text-primary text-center section-title">Popular Routes</h2>
+        
+        <div class="routes-carousel-wrapper">
+          <div class="routes-carousel-track">
+            <!-- Route 1 -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.sOL8EwtsxNsdYllJm_VryAHaE7?w=256&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Delhi → Mumbai</h4>
+              </div>
+            </div>
+
+            <!-- Route 2 -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.1fepLWtaxOD5QzBAbZy2pgHaEK?w=300&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Kolkata → Chennai</h4>
+              </div>
+            </div>
+
+            <!-- Route 3 -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.tEFEX0O9_-NbFFA6jiZ7RAHaEo?w=257&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Jaipur → Goa</h4>
+              </div>
+            </div>
+
+            <!-- Route 4 -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.4UW_YzkoOer36kXlw1Z-wQHaEK?w=325&h=183&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Banglore → Uttarakhand</h4>
+              </div>
+            </div>
+
+            <!-- Route 5 -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.CLo7grbkncWpUw4UuglUtwHaEK?w=238&h=182&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Mumbai → West Bengal</h4>
+              </div>
+            </div>
+
+            <!-- Route 6 -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.N5J4dAvaUTDquurPPcKzaQHaE6?w=275&h=182&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Rajasthan → Shimla</h4>
+              </div>
+            </div>
+
+            <!-- Duplicate items for seamless loop -->
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.sOL8EwtsxNsdYllJm_VryAHaE7?w=256&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Delhi → Mumbai</h4>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.1fepLWtaxOD5QzBAbZy2pgHaEK?w=300&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Kolkata → Chennai</h4>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.tEFEX0O9_-NbFFA6jiZ7RAHaEo?w=257&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Jaipur → Goa</h4>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.mRT6FfgjLJaDYW-50wf3mgHaE8?w=241&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Dehradun → Haldwani</h4>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.4UW_YzkoOer36kXlw1Z-wQHaEK?w=325&h=183&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Delhi → Tamil Nadu</h4>
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <div class="route-card" style="background-image:url('https://th.bing.com/th/id/OIP.4UW_YzkoOer36kXlw1Z-wQHaEK?w=325&h=183&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'); background-size:cover;">
+                <h4>Punjab → Haridwar</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+<!-- Advanced Analytics Dashboard Section -->
+<section class="analytics-section position-relative overflow-hidden" style="background-color: #002147; padding: clamp(40px, 8vw, 80px) 0;">
+  
+  <!-- Decorative Background Elements -->
+  <div class="position-absolute top-0 start-0 w-100 h-100" style="opacity: 0.05; background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 30px 30px;"></div>
+  
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      
+      <!-- Left Content -->
+      <div class="col-lg-6">
+        <div class="content-wrapper">
+          <!-- Badge -->
+          <div class="d-inline-flex align-items-center gap-2 mb-3 px-3 py-2" style="background: rgba(255, 193, 7, 0.15); border-radius: 50px; border: 1px solid rgba(255, 193, 7, 0.3);">
+            <i class="fas fa-bolt" style="color: #ffc107; font-size: clamp(0.8rem, 1.5vw, 0.9rem);"></i>
+            <span style="color: #ffc107; font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem); letter-spacing: 0.5px;">INTELLIGENT SYSTEM</span>
+          </div>
+
+          <!-- Main Heading -->
+          <h2 class="fw-bold text-white mb-4" style="line-height: 1.2; font-size: clamp(1.8rem, 5vw, 3.5rem);">
+            Real-Time Pulley<br>
+            <span style="background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Monitoring & Analytics</span>
+          </h2>
+
+          <!-- Description -->
+          <p class="text-white-50 mb-4" style="line-height: 1.8; font-size: clamp(0.95rem, 2vw, 1.25rem);">
+            Transform your railway maintenance with cutting-edge AI technology. Our system delivers precision measurements, predictive insights, and automated reporting to keep your operations running smoothly.
+          </p>
+
+          <!-- Stats Row -->
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <div class="stat-box p-3" style="background: rgba(255, 255, 255, 0.08); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
+                <h3 class="fw-bold text-warning mb-1" style="font-size: clamp(1.5rem, 4vw, 2.2rem);">15K+</h3>
+                <p class="text-white-50 mb-0" style="font-size: clamp(0.8rem, 1.5vw, 0.9rem);">Scans Completed</p>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-box p-3" style="background: rgba(255, 255, 255, 0.08); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
+                <h3 class="fw-bold text-warning mb-1" style="font-size: clamp(1.5rem, 4vw, 2.2rem);">98.9%</h3>
+                <p class="text-white-50 mb-0" style="font-size: clamp(0.8rem, 1.5vw, 0.9rem);">System Uptime</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Buttons -->
+          <div class="d-flex flex-wrap gap-3">
+            <a href="{% url 'detect_pulleys' %}" class="btn btn-warning px-4 py-3 fw-bold" style="border-radius: 12px; font-size: clamp(0.9rem, 1.8vw, 1rem); box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);">
+              <i class="fas fa-rocket me-2"></i>Start Detection
+            </a>
+            <a href="{% url 'demo_video' %}" class="btn btn-outline-light px-4 py-3 fw-bold" style="border-radius: 12px; font-size: clamp(0.9rem, 1.8vw, 1rem); border-width: 2px;">
+              <i class="fas fa-play-circle me-2"></i>Watch Demo
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Dashboard Preview -->
+      <div class="col-lg-6">
+        <div class="dashboard-preview position-relative">
+          
+          <!-- Main Dashboard Card -->
+          <div class="main-card p-4" style="background: white; border-radius: 25px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            
+            <!-- Dashboard Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+              <div>
+                <h5 class="fw-bold mb-1" style="color: #002147; font-size: clamp(1rem, 2vw, 1.25rem);">Detection Dashboard</h5>
+                <p class="text-secondary mb-0" style="font-size: clamp(0.75rem, 1.5vw, 0.85rem);">Live monitoring system</p>
+              </div>
+              <div class="d-flex align-items-center gap-2 px-3 py-2" style="background: #e8f5e9; border-radius: 50px;">
+                <div style="width: 8px; height: 8px; background: #4caf50; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                <span style="color: #4caf50; font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">Live</span>
+              </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="row g-3 mb-4">
+              <div class="col-6">
+                <div class="metric-card p-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; transition: transform 0.3s ease;">
+                  <i class="fas fa-ruler-combined mb-2" style="color: white; font-size: clamp(1.2rem, 2.5vw, 1.5rem); opacity: 0.9;"></i>
+                  <h4 class="fw-bold text-white mb-1" style="font-size: clamp(1.2rem, 2.5vw, 1.5rem);">245.6 mm</h4>
+                  <p class="text-white mb-0" style="font-size: clamp(0.7rem, 1.5vw, 0.8rem); opacity: 0.9;">Distance Measured</p>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="metric-card p-3" style="background: linear-gradient(135deg, #2ebf91 0%, #8360c3 100%); border-radius: 15px; transition: transform 0.3s ease;">
+                  <i class="fas fa-check-circle mb-2" style="color: white; font-size: clamp(1.2rem, 2.5vw, 1.5rem); opacity: 0.9;"></i>
+                  <h4 class="fw-bold text-white mb-1" style="font-size: clamp(1.2rem, 2.5vw, 1.5rem);">99.8%</h4>
+                  <p class="text-white mb-0" style="font-size: clamp(0.7rem, 1.5vw, 0.8rem); opacity: 0.9;">Accuracy Rate</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress Bars -->
+            <div class="progress-section">
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span style="color: #002147; font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">Processing Speed</span>
+                  <span style="color: #667eea; font-weight: 700; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">92%</span>
+                </div>
+                <div class="progress" style="height: clamp(6px, 1.5vw, 8px); border-radius: 10px; background: #e9ecef;">
+                  <div class="progress-bar" style="width: 92%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 10px;"></div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span style="color: #002147; font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">Detection Quality</span>
+                  <span style="color: #2ebf91; font-weight: 700; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">98%</span>
+                </div>
+                <div class="progress" style="height: clamp(6px, 1.5vw, 8px); border-radius: 10px; background: #e9ecef;">
+                  <div class="progress-bar" style="width: 98%; background: linear-gradient(90deg, #2ebf91 0%, #8360c3 100%); border-radius: 10px;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span style="color: #002147; font-weight: 600; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">System Health</span>
+                  <span style="color: #ffc107; font-weight: 700; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">95%</span>
+                </div>
+                <div class="progress" style="height: clamp(6px, 1.5vw, 8px); border-radius: 10px; background: #e9ecef;">
+                  <div class="progress-bar" style="width: 95%; background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%); border-radius: 10px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="activity-feed mt-4 pt-3" style="border-top: 1px solid #e9ecef;">
+              <h6 class="fw-bold mb-3" style="color: #002147; font-size: clamp(0.85rem, 1.8vw, 0.9rem);">Recent Activity</h6>
+              
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div style="width: clamp(30px, 6vw, 35px); height: clamp(30px, 6vw, 35px); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="fas fa-camera" style="color: white; font-size: clamp(0.8rem, 1.5vw, 0.9rem);"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 fw-semibold" style="color: #002147; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">Image Captured</p>
+                  <p class="mb-0 text-secondary" style="font-size: clamp(0.7rem, 1.3vw, 0.75rem);">2 minutes ago</p>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-start gap-3">
+                <div style="width: clamp(30px, 6vw, 35px); height: clamp(30px, 6vw, 35px); background: linear-gradient(135deg, #2ebf91 0%, #8360c3 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="fas fa-check" style="color: white; font-size: clamp(0.8rem, 1.5vw, 0.9rem);"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <p class="mb-0 fw-semibold" style="color: #002147; font-size: clamp(0.75rem, 1.5vw, 0.85rem);">Analysis Complete</p>
+                  <p class="mb-0 text-secondary" style="font-size: clamp(0.7rem, 1.3vw, 0.75rem);">5 minutes ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+      <!-- User Testimonials -->
+<section class="testimonials-section">
+    <div class="testimonials-container">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-quote-left"></i>
+                What Railway Engineers Say
+            </h2>
+            <p class="section-subtitle">Trusted by railway professionals across India for accurate pulley measurements</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rajesh Kumar" class="user-avatar" />
+                    <div class="user-info">
+                        <h6 class="user-name">Rajesh Kumar</h6>
+                        <p class="user-role">Senior Maintenance Engineer</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-body">
+                    <p class="testimonial-text">"This AI-powered detection system has revolutionized our maintenance workflow. What used to take hours now completes in minutes with incredible accuracy!"</p>
+                    <div class="testimonial-footer">
+                        <span class="location"><i class="fas fa-map-marker-alt"></i> Northern Railway</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya Sharma" class="user-avatar" />
+                    <div class="user-info">
+                        <h6 class="user-name">Priya Sharma</h6>
+                        <p class="user-role">Technical Supervisor</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-body">
+                    <p class="testimonial-text">"The live camera detection feature is a game-changer. Real-time measurements with HTL calculations have improved our safety protocols significantly."</p>
+                    <div class="testimonial-footer">
+                        <span class="location"><i class="fas fa-map-marker-alt"></i> Western Railway</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <img src="https://randomuser.me/api/portraits/men/52.jpg" alt="Amit Verma" class="user-avatar" />
+                    <div class="user-info">
+                        <h6 class="user-name">Amit Verma</h6>
+                        <p class="user-role">Field Inspector</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-body">
+                    <p class="testimonial-text">"Accurate distance measurements and automated reporting have reduced human error. The temperature compensation feature ensures precise readings in all conditions."</p>
+                    <div class="testimonial-footer">
+                        <span class="location"><i class="fas fa-map-marker-alt"></i> Southern Railway</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+  <!-- Contact
+  <section class="contact text-center">
+    <div class="container">
+      <h2 class="fw-bold mb-3">Need Assistance?</h2>
+      <p class="mb-4 opacity-90">Our team is available 24/7 to support your travel queries. Reach out for bookings, complaints, or information.</p>
+      <a href="#" class="btn px-4 py-2 rounded-pill">Contact Support</a>
+    </div>
+  </section> -->
+
+  <!-- Footer -->
+<footer class="footer">
+  <div class="container py-5">
+    <div class="row g-4">
+      
+      <!-- About Section -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="text-warning fw-bold mb-3">
+          <i class="fas fa-train me-2"></i>Pulley detection system
+        </h5>
+        <p class="text-light opacity-75" style="font-size: 0.9rem; line-height: 1.6;">
+          Connecting the nation with world-class railway services. Experience safe, comfortable, and affordable travel across India.
+        </p>
+        <div class="social-icons mt-3">
+          <a href="#" class="text-white me-3" style="font-size: 1.3rem; transition: 0.3s;">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="text-white me-3" style="font-size: 1.3rem; transition: 0.3s;">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="text-white me-3" style="font-size: 1.3rem; transition: 0.3s;">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" class="text-white" style="font-size: 1.3rem; transition: 0.3s;">
+            <i class="fab fa-youtube"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="text-warning fw-bold mb-3">Quick Links</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>About Us
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Train Schedule
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Book Tickets
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>PNR Status
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Careers
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Services -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="text-warning fw-bold mb-3">Our Services</h5>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Pulley Detection
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Maintenance System
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Safety Measures
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Catering Services
+            </a>
+          </li>
+          <li class="mb-2">
+            <a href="#" class="text-white text-decoration-none opacity-75" style="transition: 0.3s;">
+              <i class="fas fa-angle-right me-2"></i>Parcel Services
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6">
+        <h5 class="text-warning fw-bold mb-3">Contact Us</h5>
+        <ul class="list-unstyled">
+          <li class="mb-3 text-white opacity-75">
+            <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+            <span style="font-size: 0.9rem;">Rail Bhavan, New Delhi<br>110001, India</span>
+          </li>
+          <li class="mb-3 text-white opacity-75">
+            <i class="fas fa-phone-alt me-2 text-warning"></i>
+            <span style="font-size: 0.9rem;">139 (Helpline)</span>
+          </li>
+          <li class="mb-3 text-white opacity-75">
+            <i class="fas fa-envelope me-2 text-warning"></i>
+            <span style="font-size: 0.9rem;">support@indianrailway.gov.in</span>
+          </li>
+          <li class="mb-3 text-white opacity-75">
+            <i class="fas fa-clock me-2 text-warning"></i>
+            <span style="font-size: 0.9rem;">24/7 Customer Support</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Divider -->
+    <hr class="my-4 bg-light opacity-25">
+
+    <!-- Bottom Footer -->
+    <div class="row">
+      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+        <p class="mb-0 text-white opacity-75" style="font-size: 0.9rem;">
+          © 2025 Pulley Detections. All Rights Reserved.
+        </p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <a href="#" class="text-white text-decoration-none opacity-75 me-3" style="font-size: 0.9rem; transition: 0.3s;">
+          Privacy Policy
+        </a>
+        <a href="#" class="text-white text-decoration-none opacity-75 me-3" style="font-size: 0.9rem; transition: 0.3s;">
+          Terms of Service
+        </a>
+        <a href="#" class="text-white text-decoration-none opacity-75" style="font-size: 0.9rem; transition: 0.3s;">
+          Sitemap
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function toggleMenu() {
+      const mobileMenu = document.getElementById('mobileMenu');
+      mobileMenu.classList.toggle('active');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const mobileMenu = document.getElementById('mobileMenu');
+      const hamburger = document.querySelector('.hamburger');
+      
+      if (!mobileMenu.contains(event.target) && !hamburger.contains(event.target)) {
+        mobileMenu.classList.remove('active');
+      }
+    });
+  </script>
+  <script>
+    // Close mobile menu after clicking any link
+    (function() {
+      const mobileMenu = document.getElementById('mobileMenu');
+      if (!mobileMenu) return;
+      mobileMenu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          mobileMenu.classList.remove('active');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

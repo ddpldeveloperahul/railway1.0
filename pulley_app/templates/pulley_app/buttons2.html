@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indian Railway | Dashboard</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      background: #002147;
+      padding: clamp(25px, 5vw, 35px) clamp(15px, 3vw, 20px);
+      color: white;
+      margin-bottom: clamp(20px, 4vw, 30px);
+      box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+    }
+
+    .welcome-avatar {
+      width: clamp(55px, 10vw, 65px);
+      height: clamp(55px, 10vw, 65px);
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.5rem, 4vw, 1.8rem);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+    }
+
+    .welcome-text h5 {
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      font-weight: 400;
+      margin-bottom: 3px;
+      opacity: 0.85;
+    }
+
+    .welcome-text h3 {
+      font-size: clamp(1.3rem, 3vw, 1.6rem);
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .welcome-icons {
+      font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 2.5vw, 18px);
+    }
+
+    .welcome-icons i,
+    .welcome-icons a {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: white;
+      text-decoration: none;
+    }
+
+    .welcome-icons i:hover,
+    .welcome-icons a:hover {
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+
+    /* Dashboard Section */
+    .dashboard-section {
+      padding: 0 clamp(15px, 3vw, 20px);
+      margin-bottom: clamp(25px, 5vw, 35px);
+    }
+
+    .section-title {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.3rem, 3vw, 1.6rem);
+      margin-bottom: clamp(15px, 3vw, 20px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(140px, 20vw, 160px), 1fr));
+      gap: clamp(12px, 2.5vw, 18px);
+    }
+
+    .dashboard-card {
+      background: white;
+      border-radius: 20px;
+      padding: clamp(25px, 5vw, 35px) clamp(15px, 3vw, 20px);
+      text-align: center;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+      min-height: clamp(140px, 25vw, 160px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--card-color-1) 0%, var(--card-color-2) 100%);
+      z-index: 1;
+    }
+
+    .dashboard-card>* {
+      position: relative;
+      z-index: 2;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .dashboard-card .icon-circle {
+      width: clamp(55px, 12vw, 65px);
+      height: clamp(55px, 12vw, 65px);
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(10px, 2vw, 15px);
+      font-size: clamp(1.5rem, 4vw, 1.8rem);
+      transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover .icon-circle {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(1.1);
+    }
+
+    .dashboard-card h5 {
+      font-size: clamp(0.9rem, 2vw, 1.05rem);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    /* Card Colors – Light, Distinct & Railway Themed */
+
+/* Detection – Sky Blue */
+.card-gradient-1 {
+  --card-color-1: #6fb1fc;
+  --card-color-2: #4f8ef7;
+}
+
+/* Live / AI – Navy Blue */
+.card-gradient-2 {
+  --card-color-1: #1f3c88;
+  --card-color-2: #3a6dd8;
+}
+
+/* Analytics – Soft Amber */
+.card-gradient-3 {
+  --card-color-1: #fbc531;
+  --card-color-2: #fa8231;
+}
+
+/* Calculation – Steel Blue */
+.card-gradient-4 {
+  --card-color-1: #3c6382;
+  --card-color-2: #0a3d62;
+}
+
+/* Employees – Teal Green */
+.card-gradient-5 {
+  --card-color-1: #38ada9;
+  --card-color-2: #079992;
+}
+
+/* Database – Cool Violet */
+.card-gradient-6 {
+  --card-color-1: #6a89cc;
+  --card-color-2: #4a69bd;
+}
+
+
+    /* Railway Pulley Detection Insight */
+.railway-insight {
+  margin: 0 clamp(15px, 3vw, 20px) clamp(25px, 5vw, 40px);
+  padding: clamp(30px, 6vw, 45px);
+  border-radius: 26px;
+  background: linear-gradient(135deg, #003a75 0%, #ffffff 100%);
+  color: white;
+  box-shadow: 0 25px 60px rgba(0, 33, 71, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.railway-insight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(0, 102, 204, 0.25), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(255, 193, 7, 0.18), transparent 45%);
+}
+
+.railway-insight * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Header */
+.railway-header {
+  max-width: 720px;
+  margin-bottom: 30px;
+}
+
+.railway-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.railway-header h3 {
+  font-size: clamp(1.6rem, 3.5vw, 2rem);
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.railway-header p {
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  opacity: 0.9;
+  line-height: 1.7;
+}
+
+/* Stats */
+.railway-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.railway-stat-card {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.railway-stat-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.railway-stat-card.highlight {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #002147;
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #ffc107;
+}
+
+.railway-stat-card.highlight .stat-icon {
+  background: rgba(255, 255, 255, 0.4);
+  color: #002147;
+}
+
+.stat-info h4 {
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.stat-info span {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* Workflow */
+.pulley-workflow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.workflow-step {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 18px;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.workflow-step i {
+  display: block;
+  font-size: 1.5rem;
+  color: #ffc107;
+  margin-bottom: 8px;
+}
+
+
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      padding: clamp(10px, 2vw, 14px) clamp(25px, 5vw, 35px);
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 1.8vw, 1rem);
+      text-decoration: none;
+      border: 2px solid transparent;
+      box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 102, 204, 0.4);
+      color: white;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: clamp(8px, 0vw, 12px) clamp(5px, 1vw, 10px);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #666;
+      font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      flex: 1;
+      max-width: clamp(70px, 15vw, 90px);
+      padding: clamp(5px, 1vw, 8px) 0;
+    }
+
+    .icon-wrapper {
+      width: clamp(42px, 9vw, 48px);
+      height: clamp(42px, 9vw, 48px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 3px;
+      transition: all 0.3s ease;
+      background: rgba(0, 33, 71, 0.05);
+    }
+
+    .nav-item svg {
+      width: clamp(18px, 4vw, 20px);
+      height: clamp(18px, 4vw, 20px);
+      fill: #666;
+      transition: fill 0.3s ease;
+    }
+
+    .nav-item.active .icon-wrapper {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    }
+
+    .nav-item.active svg {
+      fill: white;
+    }
+
+    .nav-item.active {
+      color: #002147;
+      font-weight: 600;
+    }
+
+    .nav-item:hover .icon-wrapper {
+      background: rgba(0, 33, 71, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .nav-item.active:hover .icon-wrapper {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+    }
+
+    .nav-text {
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      font-weight: 500;
+    }
+
+    /* System Overview Section */
+    .system-overview {
+      margin: 0 clamp(15px, 3vw, 20px) clamp(30px, 6vw, 45px);
+      padding: clamp(30px, 6vw, 50px);
+      border-radius: 28px;
+      background: linear-gradient(135deg, #001a3d 0%, #003a75 100%);
+      color: white;
+      box-shadow: 0 25px 60px rgba(0, 33, 71, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .system-overview::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(0, 102, 204, 0.25), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(255, 193, 7, 0.18), transparent 45%);
+    }
+
+    .system-overview * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Badge */
+    .overview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    /* Title */
+    .overview-title {
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.2;
+    }
+
+    /* Description */
+    .overview-desc {
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      opacity: 0.9;
+      line-height: 1.8;
+      margin-bottom: 22px;
+    }
+
+    /* Features */
+    .overview-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .feature-item i {
+      color: #ffc107;
+      font-size: 1.1rem;
+    }
+
+    /* Buttons */
+    .overview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .btn-overview {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 26px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-overview.primary {
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      color: #002147;
+    }
+
+    .btn-overview.secondary {
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: white;
+    }
+
+    .btn-overview:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Right Visual */
+    .overview-visual {
+      display: flex;
+      justify-content: center;
+    }
+
+    .visual-card {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 32px;
+      text-align: center;
+      max-width: 420px;
+      backdrop-filter: blur(10px);
+    }
+
+    .visual-card i {
+      font-size: 3rem;
+      color: #ffc107;
+      margin-bottom: 12px;
+    }
+
+    .visual-card h4 {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .visual-card p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin-bottom: 22px;
+    }
+
+    /* Stats */
+    .visual-stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .visual-stats div {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 12px;
+      border-radius: 14px;
+      flex: 1;
+    }
+
+    .visual-stats h5 {
+      margin: 0;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #ffc107;
+    }
+
+    .visual-stats span {
+      font-size: 0.75rem;
+      opacity: 0.85;
+    }
+    /* Make cards clickable */
+.pulley-card {
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+/* ACTIVE (Golden Card) */
+.pulley-card.active {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #002147;
+  box-shadow: 0 14px 35px rgba(255, 193, 7, 0.45);
+}
+
+/* Active icon */
+.pulley-card.active .stat-icon {
+  background: rgba(255, 255, 255, 0.45);
+  color: #002147;
+}
+
+/* Active text */
+.pulley-card.active h4,
+.pulley-card.active span {
+  color: #002147;
+}
+
+/* Hover for non-active */
+.pulley-card:not(.active):hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+  </style>
+</head>
+
+<body>
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+        <!-- Left: Avatar + Text -->
+        <div class="d-flex align-items-center gap-3">
+          <div class="welcome-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="welcome-text">
+            <h5>Welcome </h5>
+            <h3>{{user.username |capfirst }}</h3>
+          </div>
+        </div>
+
+        <!-- Right: Icons -->
+        <div class="welcome-icons">
+          <a href="{% url 'main' %}">
+            <i class="fas fa-train"></i>
+          </a>
+
+          <a href="javascript:void(0);" onclick="confirmLogout()">
+  <i class="fas fa-sign-out-alt"></i>
+</a>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div class="dashboard-section">
+    <div class="container-fluid">
+      <h2 class="section-title">
+        <i class="fas fa-th-large"></i>
+        Dashboard
+      </h2>
+
+      <div class="dashboard-grid">
+        <!-- Picture Measure -->
+        <a class="dashboard-card card-gradient-1" href="{% url 'detect_pulleys' %}">
+          <div class="icon-circle">
+            <i class="fas fa-camera"></i>
+          </div>
+          <h5>Image Detection</h5>
+        </a>
+
+        <!-- Video Measure -->
+        <a class="dashboard-card card-gradient-2" href="{% url 'forms' %}">
+          <div class="icon-circle">
+            <i class="fas fa-video"></i>
+          </div>
+          <h5>Live Detection</h5>
+        </a>
+
+        <!-- Result Data -->
+        <a class="dashboard-card card-gradient-3" href="{% url 'choose_database' %}">
+          <div class="icon-circle">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h5>User's Data</h5>
+        </a>
+
+        <!-- Calculation -->
+        <a class="dashboard-card card-gradient-4" href="{% url 'calculator_buttons' %}">
+          <div class="icon-circle">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <h5>Calculation</h5>
+        </a>
+
+        <!-- Employees -->
+        <a class="dashboard-card card-gradient-5" href="{% url 'employees' %}">
+          <div class="icon-circle">
+            <i class="fas fa-users"></i>
+          </div>
+          <h5>Employees</h5>
+        </a>
+
+        <!-- All Data -->
+        <a class="dashboard-card card-gradient-6" href="{% url 'choose_database2' %}">
+          <div class="icon-circle">
+            <i class="fas fa-database"></i>
+          </div>
+          <h5>All Data</h5>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Overview Section -->
+  <section class="system-overview">
+    <div class="container-fluid">
+      <div class="row align-items-center g-4">
+
+        <!-- Left Content -->
+        <div class="col-lg-6">
+          <span class="overview-badge">
+            <i class="fas fa-bolt"></i> AI Powered Railway Safety
+          </span>
+
+          <h2 class="overview-title">
+            Intelligent Pulley Detection System
+          </h2>
+
+          <p class="overview-desc">
+            Our AI-driven Pulley Detection System is designed to assist Indian Railways engineers
+            in identifying pulley positions, measuring spacing accuracy, and ensuring
+            operational safety using advanced image and video processing.
+          </p>
+
+          <div class="overview-features">
+            <div class="feature-item">
+              <i class="fas fa-eye"></i>
+              <span>Automatic Pulley Detection</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-ruler-combined"></i>
+              <span>Accurate Distance Measurement</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-video"></i>
+              <span>Live & Image-based Analysis</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>Enhanced Railway Safety</span>
+            </div>
+          </div>
+
+          <div class="overview-actions">
+            <a href="{% url 'detect_pulleys' %}" class="btn-overview primary">
+              <i class="fas fa-camera"></i> Start Detection
+            </a>
+            <a href="{% url 'main' %}" class="btn-overview secondary">
+              <i class="fas fa-info-circle"></i> Back To Landing Page
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Visual Card -->
+        <div class="col-lg-6">
+          <div class="overview-visual">
+            <div class="visual-card">
+              <i class="fas fa-train"></i>
+              <h4>Railway-Grade AI System</h4>
+              <p>
+                Built for large-scale railway infrastructure with precision,
+                reliability, and real-time performance in mind.
+              </p>
+
+              <div class="visual-stats">
+                <div>
+                  <h5>99%</h5>
+                  <span>Detection Accuracy</span>
+                </div>
+                <div>
+                  <h5>24×7</h5>
+                  <span>Monitoring</span>
+                </div>
+                <div>
+                  <h5>AI</h5>
+                  <span>Vision Model</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Indian Railway Insight Section -->
+<!-- Railway Pulley Detection Insight -->
+<section class="railway-insight">
+  <div class="container-fluid">
+
+    <!-- Header -->
+    <div class="railway-header">
+      <span class="railway-chip">
+        <i class="fas fa-cogs"></i> OHE & Pulley Monitoring
+      </span>
+      <h3>Railway Pulley Detection System</h3>
+      <p>
+        Overhead Equipment (OHE) pulleys play a critical role in maintaining
+        proper tension, alignment, and power delivery for electric locomotives.
+        Our system ensures continuous monitoring using AI-based vision analysis.
+      </p>
+    </div>
+
+    <!-- Stats Grid -->
+<div class="railway-stats">
+
+  <div class="railway-stat-card pulley-card">
+    <div class="stat-icon">
+      <i class="fas fa-search"></i>
+    </div>
+    <div class="stat-info">
+      <h4>Automatic</h4>
+      <span>Pulley Detection</span>
+    </div>
+  </div>
+
+  <div class="railway-stat-card pulley-card">
+    <div class="stat-icon">
+      <i class="fas fa-ruler-horizontal"></i>
+    </div>
+    <div class="stat-info">
+      <h4>High Precision</h4>
+      <span>Distance Measurement</span>
+    </div>
+  </div>
+
+  <div class="railway-stat-card pulley-card">
+    <div class="stat-icon">
+      <i class="fas fa-video"></i>
+    </div>
+    <div class="stat-info">
+      <h4>Image & Live</h4>
+      <span>Vision Analysis</span>
+    </div>
+  </div>
+
+  <!-- Default Active -->
+  <div class="railway-stat-card pulley-card active">
+    <div class="stat-icon">
+      <i class="fas fa-shield-alt"></i>
+    </div>
+    <div class="stat-info">
+      <h4>Safety</h4>
+      <span>Fault Prevention</span>
+    </div>
+  </div>
+
+</div>
+
+    <!-- Workflow -->
+    <div class="pulley-workflow">
+      <div class="workflow-step">
+        <i class="fas fa-camera"></i>
+        <span>Capture OHE Images</span>
+      </div>
+      <div class="workflow-step">
+        <i class="fas fa-brain"></i>
+        <span>AI Pulley Detection</span>
+      </div>
+      <div class="workflow-step">
+        <i class="fas fa-ruler-combined"></i>
+        <span>Spacing Calculation</span>
+      </div>
+      <div class="workflow-step">
+        <i class="fas fa-check-circle"></i>
+        <span>Safety Validation</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+  <!-- CTA Section
+  <div class="cta-section">
+    <a href="{% url 'main' %}" class="btn-main">
+      <i class="fas fa-home"></i>
+      Main
+    </a>
+  </div> -->
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <a href="{% url 'railway' %}" class="nav-item active">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 3l10 9h-3v9h-6v-6h-2v6H5v-9H2Z" />
+        </svg>
+      </div>
+      <span class="nav-text">Home</span>
+    </a>
+
+    <a href="{% url 'employee' %}" class="nav-item">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />
+        </svg>
+      </div>
+      <span class="nav-text">Employee</span>
+    </a>
+
+    <a href="{% url 'services' %}" class="nav-item">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
+      </div>
+      <span class="nav-text">Services</span>
+    </a>
+    <a href="{% url 'profile_form' %}" class="nav-item">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 12a5 5 0 1 0-5-5a5 5 0 0 0 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z" />
+        </svg>
+      </div>
+      <span class="nav-text">Create Profile</span>
+    </a>
+  </div>
+
+  <script>
+    function confirmLogout() {
+    Swal.fire({
+      title: 'Logout Confirmation',
+      text: 'Are you sure you want to logout?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Logout',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      confirmButtonColor: '#ffc107',
+      cancelButtonColor: '#6c757d',
+      background: '#ffffff'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "{% url 'logout' %}";
+      }
+    });
+  }
+
+  const pulleyCards = document.querySelectorAll('.pulley-card');
+
+  pulleyCards.forEach(card => {
+    card.addEventListener('click', () => {
+      // Remove active from all cards
+      pulleyCards.forEach(c => c.classList.remove('active'));
+
+      // Activate clicked card
+      card.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+
+</html>

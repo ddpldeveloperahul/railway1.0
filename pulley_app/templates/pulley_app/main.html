@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pulley Distance Detector</title>
+    <style>
+        body { font-family: Arial; text-align: center; background-color: #f0f0f0; }
+        .container { margin-top: 40px; }
+        img { max-width: 80%; border-radius: 10px; box-shadow: 0 0 10px #555; margin-top: 20px; }
+        .distances { background: #fff; padding: 15px; border-radius: 10px; width: 60%; margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pulley Distance Detector</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Upload & Detect</button>
+        </form>
+
+        {% if result_image_url %}
+        <div class="distances">
+            <h3>Detected Distances</h3>
+            <ul>
+                {% for d in distances %}
+                <li>{{ d }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <img src="{{ result_image_url }}" alt="Processed Image">
+        {% endif %}
+    </div>
+</body>
+</html>
+ 

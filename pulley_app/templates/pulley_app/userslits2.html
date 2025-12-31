@@ -1,0 +1,996 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Employee Management | Indian Railway</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #002147;
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            padding: clamp(25px, 5vw, 40px) clamp(15px, 3vw, 20px);
+            box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+            margin-bottom: clamp(20px, 4vw, 30px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            font-weight: 700;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-header h1 i {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+        }
+
+        .page-header p {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: clamp(8px, 2vw, 12px);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: clamp(10px, 2vw, 12px) clamp(18px, 3.5vw, 24px);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-light {
+            background: white;
+            color: #002147;
+        }
+
+        .btn-light:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: #002147;
+            transform: translateY(-2px);
+        }
+
+        /* Container */
+        .container {
+            max-width: min(1400px, calc(100% - 30px));
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: clamp(15px, 3vw, 20px);
+            margin-bottom: clamp(20px, 4vw, 30px);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: clamp(20px, 4vw, 25px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 2.5vw, 18px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-icon {
+            width: clamp(55px, 11vw, 65px);
+            height: clamp(55px, 11vw, 65px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.5rem, 3.5vw, 1.8rem);
+            flex-shrink: 0;
+        }
+
+        .stat-icon.primary {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0066cc;
+        }
+
+        .stat-icon.accent {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            color: #c2185b;
+        }
+
+        .stat-icon.success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #388e3c;
+        }
+
+        .stat-content h3 {
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
+            color: #002147;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .stat-content p {
+            color: #666;
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+            margin: 0;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            margin-bottom: clamp(20px, 4vw, 30px);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            padding: clamp(18px, 3.5vw, 25px) clamp(20px, 4vw, 30px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-header h2 {
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .search-box {
+            position: relative;
+            width: min(300px, 100%);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: clamp(10px, 2vw, 12px) clamp(12px, 2.5vw, 15px) clamp(10px, 2vw, 12px) clamp(35px, 7vw, 45px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+            transition: all 0.3s ease;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            background: white;
+            color: #002147;
+            border-color: white;
+        }
+
+        .search-box input:focus::placeholder {
+            color: #999;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: clamp(12px, 2.5vw, 15px);
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            pointer-events: none;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .table th {
+            padding: clamp(15px, 3vw, 18px) clamp(12px, 2.5vw, 20px);
+            text-align: left;
+            font-weight: 700;
+            color: #002147;
+            text-transform: uppercase;
+            font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid #0066cc;
+            white-space: nowrap;
+        }
+
+        .table th i {
+            margin-right: 6px;
+            color: #0066cc;
+        }
+
+        .table td {
+            padding: clamp(15px, 3vw, 18px) clamp(12px, 2.5vw, 20px);
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+            color: #002147;
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%);
+            transform: scale(1.001);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: clamp(6px, 1.2vw, 8px) clamp(12px, 2.5vw, 16px);
+            border-radius: 20px;
+            font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+            font-weight: 600;
+        }
+
+        .badge-id {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0066cc;
+        }
+
+        .badge-distances {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #e65100;
+        }
+
+        /* User Info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 2vw, 12px);
+        }
+
+        .user-avatar {
+            width: clamp(38px, 8vw, 45px);
+            height: clamp(38px, 8vw, 45px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #002147;
+        }
+
+        /* Images */
+        .thumb-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .thumb {
+            width: clamp(100px, 20vw, 120px);
+            height: clamp(70px, 14vw, 80px);
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .thumb:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .no-image {
+            width: clamp(100px, 20vw, 120px);
+            height: clamp(70px, 14vw, 80px);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+            gap: 5px;
+        }
+
+        .no-image i {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+        }
+
+        /* Date Info */
+        .date-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .date-info i {
+            color: #0066cc;
+            margin-right: 5px;
+        }
+
+        .date-info small {
+            color: #666;
+            font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: clamp(6px, 1.2vw, 8px);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: clamp(8px, 1.6vw, 10px) clamp(12px, 2.5vw, 16px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .action-btn-view {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0066cc;
+        }
+
+        .action-btn-view:hover {
+            background: #0066cc;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 102, 204, 0.3);
+        }
+
+        .action-btn-edit {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #e65100;
+        }
+
+        .action-btn-edit:hover {
+            background: #e65100;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(230, 81, 0, 0.3);
+        }
+
+        .action-btn-delete {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            color: #c62828;
+        }
+
+        .action-btn-delete:hover {
+            background: #c62828;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(198, 40, 40, 0.3);
+        }
+
+        .action-btn-back {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #002147;
+        }
+
+        .action-btn-back:hover {
+            background: #002147;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 33, 71, 0.3);
+        }
+
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: clamp(40px, 8vw, 60px) clamp(20px, 4vw, 30px);
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: clamp(3rem, 6vw, 4rem);
+            color: #ddd;
+            margin-bottom: clamp(15px, 3vw, 20px);
+        }
+
+        .no-data h3 {
+            color: #002147;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            margin-bottom: clamp(8px, 1.6vw, 10px);
+        }
+
+        .no-data p {
+            color: #666;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: clamp(15px, 3vw, 25px);
+            right: clamp(20px, 4vw, 40px);
+            color: white;
+            font-size: clamp(2rem, 5vw, 3rem);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            width: clamp(40px, 8vw, 50px);
+            height: clamp(40px, 8vw, 50px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: clamp(8px, 2vw, 12px) clamp(5px, 1vw, 10px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: clamp(70px, 15vw, 90px);
+            padding: clamp(5px, 1vw, 8px) 0;
+        }
+
+        .icon-wrapper {
+            width: clamp(42px, 9vw, 48px);
+            height: clamp(42px, 9vw, 48px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 3px;
+            transition: all 0.3s ease;
+            background: rgba(0, 33, 71, 0.05);
+        }
+
+        .nav-item svg {
+            width: clamp(18px, 4vw, 20px);
+            height: clamp(18px, 4vw, 20px);
+            fill: #666;
+            transition: fill 0.3s ease;
+        }
+
+        .nav-item.active .icon-wrapper {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .nav-item.active svg {
+            fill: white;
+        }
+
+        .nav-item.active {
+            color: #002147;
+            font-weight: 600;
+        }
+
+        .nav-item:hover .icon-wrapper {
+            background: rgba(0, 33, 71, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-text {
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .table th,
+            .table td {
+                font-size: 0.8rem;
+                padding: 10px 8px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .thumb, .no-image {
+                width: 80px;
+                height: 60px;
+            }
+
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .table tbody tr {
+            animation: fadeIn 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        .table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        .table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+
+    /* Toast container (top-right corner) */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* Toast box style */
+.toast-message {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #fff;
+    min-width: 260px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideIn 0.5s ease, fadeOut 0.5s ease 4s forwards;
+}
+
+/* Icons */
+.toast-icon {
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+/* Toast colors */
+.success { background: #28a745; }
+.error, .danger { background: #dc3545; }
+.warning { background: #ffc107; color: #000; }
+.info { background: #17a2b8; }
+
+/* Slide In Animation */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Fade Out Animation */
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translateX(100%); }
+}
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <div class="header-title">
+                <div>
+                    <h1>
+                        <i class="fas fa-users-cog"></i>
+                        Employee Management
+                    </h1>
+                    <p>Manage and view all registered employees in your organization</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'railway' %}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+                <button class="btn btn-light" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh</span>
+                </button>
+                <button class="btn btn-light" onclick="window.print()">
+                    <i class="fas fa-download"></i>
+                    <span>Export</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon primary">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ employees|length }}</h3>
+                    <p>Total Employees</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ employees|length }}</h3>
+                    <p>Active Users</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon accent">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ employees|length|add:"-1" }}</h3>
+                    <p>New This Month</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>
+                    <i class="fas fa-list"></i>
+                    Employee Directory
+                </h2>
+                 {% if messages %}
+                        <div class="toast-container">
+                            {% for message in messages %}
+                            <div class="toast-message {{ message.tags }}">
+                                <span class="toast-icon">
+                                    {% if message.tags == 'success' %} ✔
+                                    {% elif message.tags == 'error' or message.tags == 'danger' %} ✖
+                                    {% elif message.tags == 'warning' %} ⚠
+                                    {% else %} ℹ
+                                    {% endif %}
+                                </span>
+                                <span class="toast-text">{{ message }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search employees..." onkeyup="filterTable()">
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="table" id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i>ID</th>
+                             <th><i class="fas fa-hashtag"></i>Employee_Id</th>
+                            <th><i class="fas fa-user"></i>Employee Name</th>
+                            <th><i class="fas fa-envelope"></i>Email</th>
+                            <th><i class="fas fa-calendar"></i>Joined Date</th>
+                            <th><i class="fas fa-cog"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                            <tr data-employee-id="{{ employee.employee_id }}" data-username="{{ employee.username|lower }}" data-email="{{ employee.email|lower }}">
+                               <td>
+                                    <span class="badge badge-id">#{{ employee.id }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-id">#{{ employee.employee_id }}</span>
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            {{ employee.username|first|upper }}
+                                        </div>
+                                        <span class="user-name">{{ employee.username|capfirst }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ employee.email }}</td>
+                                <td>
+                                    <div class="date-info">
+                                        <div>
+                                            <i class="fas fa-calendar-day"></i>
+                                            {{ employee.date_joined|date:"M d, Y" }}
+                                        </div>
+                                        <small>
+                                            <i class="fas fa-clock"></i>
+                                            {{ employee.date_joined|date:"H:i" }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        {% comment %} <a href="#" class="action-btn action-btn-view" title="View Profile" onclick="viewEmployee('{{ employee.employee_id }}'); return false;">
+                                            <i class="fas fa-eye"></i>
+                                            <span>View</span>
+                                        </a> {% endcomment %}
+                                        {% comment %} {% if user.is_staff %}
+                                        <a href="#" class="action-btn action-btn-edit" title="Edit Employee" onclick="editEmployee('{{ employee.employee_id }}'); return false;">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Edit</span>
+                                        </a> {% endcomment %}
+                                        {% comment %} {% endif %} {% endcomment %}
+                                        {% comment %} {% if user.is_superuser %} {% endcomment %}
+                                         <a href="{% url 'employee_delete' employee.id %}" class="action-btn action-btn-delete" title="Edit Employee" onclick="return confirm('Are you sure you want to delete {{ employee.username }}? This action cannot be undone.');">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Delete</span>
+                                        </a>
+                                        {% comment %} {% endif %} {% endcomment %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="no-data">
+                                    <i class="fas fa-users-slash"></i>
+                                    <h3>No Employees Found</h3>
+                                    <p>There are no registered employees at this time. Add your first employee to get started.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Search/Filter functionality
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('employeeTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        const txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+
+        // Refresh data
+        function refreshData() {
+            // Simulate refresh without page reload
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            filterTable();
+            alert('Data refreshed successfully!');
+        }
+
+        // View employee
+        function viewEmployee(id) {
+            console.log('Viewing employee:', id);
+            alert('Viewing employee #' + id);
+        }
+
+        // Edit employee
+        function editEmployee(id) {
+            console.log('Editing employee:', id);
+            alert('Editing employee #' + id);
+        }
+
+        // Delete employee
+        function deleteEmployee(id, name) {
+            if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+                console.log('Deleting employee:', id);
+                alert('Employee deleted successfully');
+            }
+        }
+
+        // Add search input clear functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (this.value === '') {
+                filterTable();
+            }
+        });
+
+        // Print functionality enhancement
+        window.onbeforeprint = function() {
+            document.querySelector('.bottom-nav').style.display = 'none';
+            document.querySelector('.search-box').style.display = 'none';
+            document.querySelector('.header-actions').style.display = 'none';
+        };
+
+        window.onafterprint = function() {
+            document.querySelector('.bottom-nav').style.display = 'flex';
+            document.querySelector('.search-box').style.display = 'block';
+            document.querySelector('.header-actions').style.display = 'flex';
+        };
+
+    
+            setTimeout(() => {
+            document.querySelectorAll('.toast-message').forEach(el => el.remove());
+        }, 4500);
+    </script> 
+   
+
+</body>
+</html>

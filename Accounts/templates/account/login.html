@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Indian Railway</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #002147 0%, #004080 50%, #0066cc 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .back-to-home {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 100;
+    }
+
+    .back-to-home a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 8px 18px;
+      border-radius: 50px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .back-to-home a:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateX(-3px);
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .logo-section {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-circle {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+    }
+
+    .logo-circle i {
+      font-size: 2rem;
+      color: white;
+    }
+
+    .logo-section h1 {
+      color: white;
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin-bottom: 3px;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-section p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .auth-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      padding: 35px 30px 30px 30px;
+    }
+
+    .auth-card h2 {
+      color: #002147;
+      text-align: center;
+      margin-bottom: 5px;
+      font-weight: 700;
+      font-size: 1.6rem;
+    }
+
+    .auth-card .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 0.85rem;
+    }
+
+    .form-label {
+      color: #002147;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.875rem;
+      display: block;
+    }
+
+    .form-label i {
+      color: #0066cc;
+      margin-right: 4px;
+      font-size: 0.85rem;
+    }
+
+    .input-group-custom {
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .form-control {
+      background: #f8f9fa;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      padding: 12px 15px 12px 42px;
+      color: #002147;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .form-control:focus {
+      background: white;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+      outline: none;
+    }
+
+    .form-control::placeholder {
+      color: #999;
+      font-size: 0.875rem;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #0066cc;
+      font-size: 0.95rem;
+    }
+
+    .forgot-link {
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 18px;
+    }
+
+    .forgot-link a {
+      color: #0066cc;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .forgot-link a:hover {
+      color: #004080;
+      text-decoration: underline;
+    }
+
+    .btn-login {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border: none;
+      color: white;
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
+      cursor: pointer;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 102, 204, 0.5);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0 18px 0;
+      color: #999;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #e0e6ed;
+    }
+
+    .divider span {
+      padding: 0 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .social-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 8px;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      background: white;
+      color: #666;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+
+    .social-btn:hover {
+      border-color: #0066cc;
+      background: #f8f9fa;
+      color: #002147;
+      transform: translateY(-2px);
+    }
+
+    .social-btn i {
+      font-size: 1.1rem;
+    }
+
+    .signup-section {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #e0e6ed;
+    }
+
+    .signup-section p {
+      color: #666;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+    }
+
+    .btn-signup {
+      display: inline-block;
+      background: white;
+      border: 2px solid #0066cc;
+      color: #0066cc;
+      padding: 9px 28px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-signup:hover {
+      background: #0066cc;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Back to Home -->
+  <div class="back-to-home">
+    <a href="{% url 'main' %}">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back</span>
+    </a>
+  </div>
+
+  <!-- Login Container -->
+  <div class="login-wrapper">
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <div class="logo-circle">
+        <i class="fas fa-train"></i>
+      </div>
+      <h1>Traction Distribution Department (TRD) Solapur</h1>
+      <p>Login to access your account</p>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Enter your credentials to continue</p>
+
+      <form method="POST">
+        {% csrf_token %}
+        <!-- {{ form.as_p }} -->
+
+        <!-- Email Field -->
+        <div class="input-group-custom">
+          <label class="form-label">
+            <i class="fas fa-envelope"></i> Email Address
+          </label>
+          <div style="position: relative;">
+            <i class="fas fa-user input-icon"></i>
+             {{ form.email }}
+
+          </div>
+         
+        </div>
+
+        <!-- Password Field -->
+        <div class="input-group-custom">
+          <label class="form-label">
+            <i class="fas fa-lock"></i> Password
+          </label>
+          <div style="position: relative;">
+            <i class="fas fa-key input-icon"></i>
+            {{ form.password }}
+            <i class="fas fa-eye" id="togglePassword"
+              style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #0066cc; cursor: pointer;"></i>
+
+          </div>
+
+        </div>
+
+
+        <!-- Forgot Password & Reset Password -->
+        <div class="forgot-link">
+          <a href="{% url 'reset_password' %}">
+            <i class="fas fa-question-circle" style="margin-top: 10px;"></i> Forgot Password?
+          </a>
+        </div>
+        {% if messages %}
+        <div class="container mt-3">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+            <strong>
+              {% if message.tags == 'success' %}
+              ✅ Success!
+              {% elif message.tags == 'error' %}
+              ❌ Error!
+              {% elif message.tags == 'warning' %}
+              ⚠️ Warning!
+              {% elif message.tags == 'info' %}
+              ℹ️ Info:
+              {% endif %}
+            </strong>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <!-- Login Button -->
+        <button type="submit" class="btn-login">
+          <i class="fas fa-sign-in-alt"></i> Login to Account
+        </button>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span>OR CONTINUE WITH</span>
+        </div>
+
+        <!-- Social Buttons -->
+        <div class="social-buttons">
+          <a href="{% url 'main' %}" class="social-btn">
+            <i class="fab fa-google" style="color: #DB4437;"></i>
+            <span>Back</span>
+          </a>
+          <a href="#" class="social-btn">
+            <i class="fab fa-facebook" style="color: #4267B2;"></i>
+            <span>Facebook</span>
+          </a>
+        </div>
+
+        <!-- Sign Up Section -->
+        <div class="signup-section">
+          <p>Don't have an account?</p>
+          <a href="{% url 'signup' %}" class="btn-signup">
+            <i class="fas fa-user-plus"></i> Create New Account
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /*const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    togglePassword.addEventListener("click", function () {
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+      this.classList.toggle("fa-eye-slash");
+    }); */
+      const togglePassword = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("id_password"); // ✅ CORRECT ID
+
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener("click", function () {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        this.classList.remove("fa-eye");
+        this.classList.add("fa-eye-slash");
+      } else {
+        passwordInput.type = "password";
+        this.classList.remove("fa-eye-slash");
+        this.classList.add("fa-eye");
+      }
+    });
+  }
+  </script>
+
+</body>
+
+</html> 
+
+
+

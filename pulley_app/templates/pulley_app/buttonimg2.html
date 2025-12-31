@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | Indian Railway</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #002147;
+            min-height: 100vh;
+            padding-bottom: 110px;
+        }
+
+        /* Back Button */
+        .back-button-container {
+            position: fixed;
+            top: clamp(15px, 3vw, 20px);
+            left: clamp(15px, 3vw, 20px);
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 33, 71, 0.1);
+            color: #002147;
+            padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 18px);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #0066cc;
+            transform: translateX(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-btn i {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            padding: clamp(35px, 7vw, 50px) clamp(15px, 3vw, 20px) clamp(25px, 5vw, 35px);
+            box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+            margin-bottom: clamp(30px, 6vw, 50px);
+            text-align: center;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-header h1 {
+            font-weight: 700;
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            margin-bottom: clamp(10px, 2vw, 15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(10px, 2vw, 15px);
+            flex-wrap: wrap;
+        }
+
+        .page-header h1 i {
+            font-size: clamp(2rem, 5.5vw, 3rem);
+        }
+
+        .page-header p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            opacity: 0.95;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Services Container */
+        .services-container {
+            max-width: min(1000px, calc(100% - 30px));
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+            gap: clamp(20px, 4vw, 30px);
+        }
+
+        /* Service Card */
+        .service-card {
+            background: white;
+            border-radius: 25px;
+            padding: clamp(30px, 6vw, 45px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            transition: all 0.4s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-icon {
+            width: clamp(90px, 18vw, 120px);
+            height: clamp(90px, 18vw, 120px);
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: clamp(20px, 4vw, 25px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 35px rgba(0, 102, 204, 0.4);
+        }
+
+        .service-icon i {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            color: white;
+        }
+
+        .service-title {
+            color: #002147;
+            font-weight: 700;
+            font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+            margin-bottom: clamp(12px, 2.5vw, 15px);
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-title {
+            color: #0066cc;
+        }
+
+        .service-description {
+            color: #666;
+            font-size: clamp(0.95rem, 2vw, 1.05rem);
+            line-height: 1.6;
+            margin-bottom: clamp(20px, 4vw, 25px);
+        }
+
+        .service-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 clamp(20px, 4vw, 25px) 0;
+            width: 100%;
+        }
+
+        .service-features li {
+            padding: clamp(8px, 1.6vw, 10px) 0;
+            color: #002147;
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .service-features li:last-child {
+            border-bottom: none;
+        }
+
+        .service-features li i {
+            color: #0066cc;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            flex-shrink: 0;
+        }
+
+        .service-button {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            padding: clamp(12px, 2.5vw, 15px) clamp(30px, 6vw, 40px);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: clamp(0.95rem, 2vw, 1.05rem);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .service-card:hover .service-button {
+            background: linear-gradient(135deg, #0066cc 0%, #002147 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        .service-button i {
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: clamp(8px, 2vw, 12px) clamp(5px, 1vw, 10px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: clamp(70px, 15vw, 90px);
+            padding: clamp(5px, 1vw, 8px) 0;
+        }
+
+        .icon-wrapper {
+            width: clamp(42px, 9vw, 48px);
+            height: clamp(42px, 9vw, 48px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 3px;
+            transition: all 0.3s ease;
+            background: rgba(0, 33, 71, 0.05);
+        }
+
+        .nav-item svg {
+            width: clamp(18px, 4vw, 20px);
+            height: clamp(18px, 4vw, 20px);
+            fill: #666;
+            transition: fill 0.3s ease;
+        }
+
+        .nav-item.active .icon-wrapper {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .nav-item.active svg {
+            fill: white;
+        }
+
+        .nav-item.active {
+            color: #002147;
+            font-weight: 600;
+        }
+
+        .nav-item:hover .icon-wrapper {
+            background: rgba(0, 33, 71, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-text {
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            font-weight: 500;
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .service-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .service-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .service-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <div class="back-button-container">
+        <a href="#" class="back-btn" onclick=goBack()>
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a> 
+         
+    </div>
+
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-cogs"></i>
+                Our Services
+            </h1>
+            <p>Choose from our specialized calculation tools designed for railway operations</p>
+        </div>
+    </header>
+
+    <!-- Services Container -->
+    <div class="services-container">
+        <div class="services-grid">
+            
+            <!-- Image Data Card -->
+            <a href="{% url 'old_data' %}" class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <h2 class="service-title">Upload Image Data</h2>
+                <p class="service-description">
+                    Upload and analyze pulley images to perform temperature-based adjustment calculations
+                </p>
+                <ul class="service-features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Upload pulley images</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Calculate X & Y adjustments</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>View calculation history</span>
+                    </li>
+                </ul>
+                <button class="service-button">
+                    <span>Upload Image</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button> 
+            </a>
+
+            <!-- Camera Data Card -->
+            <a href="{% url 'all_data_camera' %}" class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h2 class="service-title">Camera Data</h2>
+                <p class="service-description">
+                    Capture pulley images in real-time using your device camera for instant analysis
+                </p>
+                <ul class="service-features">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Real-time camera capture</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Instant calculations</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>Save & review results</span>
+                    </li>
+                </ul>
+                <button class="service-button">
+                    <span>Open Camera</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </a>
+
+        </div>
+    </div>
+    <script>
+        function goBack() {
+        window.history.back();
+        }
+    </script>
+</body>
+</html>

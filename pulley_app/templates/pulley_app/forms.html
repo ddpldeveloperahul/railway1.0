@@ -1,0 +1,432 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload HTL & Temperature Data | Indian Railway</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * /* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY – same as Pulley Detector */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #002147;
+  min-height: 100vh;
+  padding: 0px;
+}
+/* Page Header (same as Upload & Detect theme) */
+.page-header {
+  background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+  color: white;
+  text-align: center;
+  padding: clamp(22px, 4vw, 28px) clamp(12px, 2vw, 16px);
+  box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.page-header p {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Container */
+.container {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* Back Button – glass style */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #002147;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  transform: translateX(-4px);
+  background: rgba(255,255,255,0.25);
+}
+
+/* Card */
+.card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
+/* Card Header */
+.card-header {
+  background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+  padding: 22px 26px;
+}
+
+.card-header h5 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Card Body */
+.card-body {
+  padding: 30px;
+}
+
+/* Labels */
+.form-label {
+  font-weight: 600;
+  color: #002147;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Inputs */
+.form-control {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #e0e6ed;
+  background: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 4px rgba(0,102,204,0.12);
+}
+
+/* Help text */
+.form-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+/* Errors */
+.text-danger {
+  font-size: 0.85rem;
+  color: #dc3545;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #dee2e6, transparent);
+  margin: 24px 0;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+/* Primary (Temperature) */
+.btn-primary {
+  background: white;
+  border: 2px solid #0066cc;
+  color: #0066cc;
+}
+
+.btn-primary:hover {
+  background: #0066cc;
+  color: white;
+}
+
+/* Success (Upload / Detect) */
+.btn-success {
+  background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0,102,204,0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,102,204,0.4);
+}
+
+/* Danger (Location) */
+.btn-danger {
+  background: white;
+  border: 2px solid #0066cc;
+  color: #0066cc;
+}
+
+.btn-danger:hover {
+  background: #0066cc;
+  color: white;
+}
+
+/* Alert */
+.alert {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-left: 4px solid #0066cc;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 24px;
+  color: #002147;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert i {
+            font-size: 24px;
+        }
+
+        .alert strong {
+            color: #e2e8f0;
+            font-size: 18px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            margin: 24px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .card-header h5 {
+                font-size: 18px;
+            }
+
+            .card-body {
+                padding: 24px 20px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+        }
+        .back-button-container {
+      position: fixed;
+      top: clamp(15px, 3vw, 20px);
+      left: clamp(15px, 3vw, 20px);
+      z-index: 100;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 18px);
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      transform: translateX(-3px);
+    }
+
+    .back-btn i {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+    }
+    </style>
+</head>
+
+<body>
+<div class="back-button-container">
+    <a href="{% url 'railway' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back</span>
+    </a>
+  </div>
+    <!-- Page Header -->
+<header class="page-header">
+  <h1>
+    <i class="fas fa-upload"></i>
+    Upload HTL & Temperature Data
+  </h1>
+  <p>Provide pole details, ambient temperature, and HTL values for live detection</p>
+</header>
+
+    
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h5>
+                <i class="fas fa-upload"></i>
+                Upload HTL & Temperature Values
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {% csrf_token %}
+
+                <!-- Pole Name Field -->
+                <div class="form-group">
+                    <label for="{{ form.pole_name.id_for_label }}" class="form-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ form.pole_name.label }}
+                    </label>
+                    {{ form.pole_name }}
+                    {% if form.pole_name.help_text %}
+                        <small class="form-text">{{ form.pole_name.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.pole_name.errors %}
+                        <span class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Temperature Field -->
+                <div class="form-group">
+                    <label for="{{ form.temperature.id_for_label }}" class="form-label">
+                        <i class="fas fa-temperature-high"></i>
+                        {{ form.temperature.label }}
+                    </label>
+                    {{ form.temperature }}
+                    {% if form.temperature.help_text %}
+                        <small class="form-text">{{ form.temperature.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.temperature.errors %}
+                        <span class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- HTL Field -->
+                <div class="form-group">
+                    <label for="{{ form.htl.id_for_label }}" class="form-label">
+                        <i class="fas fa-ruler-vertical"></i>
+                        {{ form.htl.label }}
+                    </label>
+                    {{ form.htl }}
+                    {% if form.htl.help_text %}
+                        <small class="form-text">{{ form.htl.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.htl.errors %}
+                        <span class="text-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-video"></i>
+                        <span>Start Live Detection</span>
+                    </button>
+
+                    <a href="{% url 'get_current_temperature' %}" class="btn btn-primary">
+                        <i class="fas fa-temperature-high"></i>
+                        <span>Get Current Temperature</span>
+                    </a>
+
+                    <a href="{% url 'get_current_location' %}" class="btn btn-danger">
+                        <i class="fas fa-location-arrow"></i>
+                        <span>Get Current Location</span>
+                    </a>
+                </div>
+            </form>
+
+            {% if temperature %}
+            <div class="alert">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    Current Temperature: <strong>{{ temperature }}°C</strong>
+                </div>
+            </div>
+            <script>
+                setTimeout(function() {
+                    window.history.back();
+                }, 2200);
+            </script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

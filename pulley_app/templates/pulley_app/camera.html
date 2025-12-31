@@ -1,0 +1,798 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulley Detection - Live Camera</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1724;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* Left side - Camera Feed */
+        .camera-section {
+            flex: 1;
+            background: #1a1f2e;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .camera-header {
+            padding: 16px 20px;
+            background: linear-gradient(180deg, #0b1320, #0b1624);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .camera-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0b74de;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #videoStream {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            background: #000;
+        }
+
+        .video-placeholder {
+            color: #64748b;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Right side - Detection Results */
+        .results-section {
+            flex: 1;
+            background: #1a1f2e;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .results-header {
+            padding: 16px 20px;
+            background: linear-gradient(180deg, #0b1320, #0b1624);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .results-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0b74de;
+        }
+
+        .results-content {
+            padding: 24px;
+            flex: 1;
+        }
+
+        .status-card {
+            background: linear-gradient(135deg, rgba(11, 116, 222, 0.1), rgba(11, 116, 222, 0.05));
+            border: 1px solid rgba(11, 116, 222, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .instruction-card {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .instruction-card h4 {
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+
+        .instruction-card ul {
+            list-style: disc;
+            padding-left: 20px;
+            color: #cbd5f5;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .status-card h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #0b74de;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.active {
+            background: #10b981;
+        }
+
+        .status-indicator.inactive {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(11, 116, 222, 0.5);
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .metric-value.primary {
+            color: #0b74de;
+        }
+
+        .metric-value.success {
+            color: #10b981;
+        }
+
+        .metric-value.warning {
+            color: #f59e0b;
+        }
+
+        .metric-value.danger {
+            color: #ef4444;
+        }
+
+        .metric-unit {
+            font-size: 14px;
+            color: #64748b;
+            margin-left: 4px;
+        }
+
+        .pulley-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #0b74de;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #64748b;
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #0b74de;
+            padding: 40px;
+        }
+
+        .capture-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981, #0f9d7a);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .capture-btn:hover {
+            background: linear-gradient(135deg, #0f9d7a, #0c7c5e);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .capture-btn:active {
+            transform: translateY(0);
+        }
+
+        .stop-btn-icon {
+            font-size: 20px;
+        }
+
+        .stop-btn-text {
+            letter-spacing: 0.5px;
+        }
+
+        .primary-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #0b74de, #2563eb);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .primary-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .primary-btn:active {
+            transform: translateY(0);
+        }
+
+        .final-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .final-result-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .final-result-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .final-result-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .camera-section,
+            .results-section {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Left Side: Camera Feed -->
+        <div class="camera-section">
+            <div class="camera-header">
+                <h2>📹 Live Camera Feed</h2>
+            </div>
+            <div class="video-container">
+                <img id="videoStream" src="{% url 'video_stream' %}" alt="Camera Feed">
+                <div class="video-placeholder" id="videoPlaceholder" style="display: none;">
+                    Waiting for camera...
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Detection Results -->
+        <div class="results-section">
+            <div class="results-header">
+                <h2>📊 Detection Results:</h2>
+            </div>
+            <div class="results-content">
+                <!-- Status Card -->
+                <div class="status-card">
+                    <h3>
+                        <span class="status-indicator" id="statusIndicator"></span>
+                        System Status
+                    </h3>
+                    <div id="statusText">Initializing...</div>
+                </div>
+
+                <!-- Pulley Count -->
+                <div class="metric-card">
+                    <div class="metric-label">Pulleys Detected</div>
+                    <div class="metric-value primary" id="pulleyCount">0</div>
+                </div>
+
+                <div class="instruction-card">
+                    <h4>📐 Alignment Checklist</h4>
+                    <ul>
+                        <li>Move the camera until the poll side pulley is clearly visible on the left.</li>
+                        <li>Keep the entire pulley set inside the frame and avoid tilt.</li>
+                        <li>When the pulleys are steady and count ≥ 3, press the green button to capture.</li>
+                    </ul>
+                </div>
+
+                <!-- Distance Measurements -->
+                <div class="metric-card">
+                    <div class="metric-label">Distance P1 → P2</div>
+                    <div class="metric-value" id="dist12">
+                        <span class="value">--</span>
+                        <span class="metric-unit">mm</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Distance P2 → P3</div>
+                    <div class="metric-value" id="dist23">
+                        <span class="value">--</span>
+                        <span class="metric-unit">mm</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Total Distance P1 → P3</div>
+                    <div class="metric-value success" id="totalDist">
+                        <span class="value">--</span>
+                        <span class="metric-unit">mm</span>
+                    </div>
+                </div>
+
+                <!-- Expected Values -->
+                <div id="expectedSection" style="display: none;">
+                    <div class="metric-card">
+                        <div class="metric-label">Expected Total Distance</div>
+                        <div class="metric-value warning" id="expectedTotal">
+                            <span class="value">--</span>
+                            <span class="metric-unit">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Loss vs Expected</div>
+                        <div class="metric-value danger" id="lossMm">
+                            <span class="value">--</span>
+                            <span class="metric-unit">mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="pulley-info" id="pulleyInfo" style="display: none;">
+                    <div class="info-item">
+                        <div class="info-label">Expected P1→P2</div>
+                        <div class="info-value" id="expectedDist12">-- mm</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Expected P2→P3</div>
+                        <div class="info-value" id="expectedDist23">-- mm</div>
+                    </div>
+                </div>
+
+                <!-- Capture Button -->
+                <div id="captureButtonContainer" style="display: none; margin-top: 24px;">
+                    <button id="captureMeasurementBtn" class="capture-btn">
+                        <span class="stop-btn-icon">📸</span>
+                        <span class="stop-btn-text">Capture Measurement</span>
+                    </button>
+                </div>
+
+                <!-- Final Results Summary (shown after stopping) -->
+                <div id="finalResults" style="display: none; margin-top: 24px;">
+                    <div class="status-card"
+                        style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border-color: rgba(16, 185, 129, 0.3);">
+                        <h3 style="color: #10b981;">✅ Detection Complete - Final Results</h3>
+                        <div id="finalResultsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Restart Camera Button -->
+                <div id="restartButtonContainer" style="display: none; margin-top: 24px;">
+                    <button id="restartCameraBtn" class="primary-btn">
+                        <span class="stop-btn-icon">🔄</span>
+                        <span class="stop-btn-text">Start Camera Again</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let captureCompleted = false;
+
+        function pickBestValue(bestValue, fallback) {
+            if (bestValue !== null && bestValue !== undefined) {
+                return bestValue;
+            }
+            return fallback;
+        }
+
+        function buildFinalResultsHTML(data) {
+            const dist12Val = pickBestValue(data.best_dist12, data.dist12);
+            const dist23Val = pickBestValue(data.best_dist23, data.dist23);
+            const totalVal = pickBestValue(data.best_total, data.total);
+            const expectedTotalVal = pickBestValue(data.best_expected_total, data.expected_total);
+            const expected12Val = pickBestValue(data.best_expected_dist12, data.expected_dist12);
+            const expected23Val = pickBestValue(data.best_expected_dist23, data.expected_dist23);
+            const lossVal = pickBestValue(data.best_loss_mm, data.loss_mm);
+            const points = (data.best_points && data.best_points.length ? data.best_points : data.points || []);
+
+            let resultsHTML = '<div class="final-results-grid">';
+
+            resultsHTML += `
+                <div class="final-result-item">
+                    <div class="final-result-label">Pulleys Detected</div>
+                    <div class="final-result-value" style="color: #0b74de;">${data.pulley_count || points.length || 0}</div>
+                </div>
+            `;
+
+            if (dist12Val !== null && dist12Val !== undefined) {
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Max Distance P1 → P2</div>
+                        <div class="final-result-value">${dist12Val.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            if (dist23Val !== null && dist23Val !== undefined) {
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Max Distance P2 → P3</div>
+                        <div class="final-result-value">${dist23Val.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            if (totalVal !== null && totalVal !== undefined) {
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Max Total P1 → P3</div>
+                        <div class="final-result-value" style="color: #10b981;">${totalVal.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            if (expectedTotalVal !== null && expectedTotalVal !== undefined) {
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Expected Total Distance</div>
+                        <div class="final-result-value" style="color: #f59e0b;">${expectedTotalVal.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            if (expected12Val !== null && expected12Val !== undefined) {
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Expected P1 → P2</div>
+                        <div class="final-result-value">${expected12Val.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            if (expected23Val !== null && expected23Val !== undefined) {
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Expected P2 → P3</div>
+                        <div class="final-result-value">${expected23Val.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            if (lossVal !== null && lossVal !== undefined) {
+                const lossColor = lossVal > 0 ? '#ef4444' : '#10b981';
+                resultsHTML += `
+                    <div class="final-result-item">
+                        <div class="final-result-label">Loss vs Expected</div>
+                        <div class="final-result-value" style="color: ${lossColor};">${lossVal.toFixed(2)} mm</div>
+                    </div>
+                `;
+            }
+
+            /*if (points.length > 0) {
+                resultsHTML += `
+                    <div class="final-result-item" style="grid-column: 1 / -1;">
+                        <div class="final-result-label">Pulley Coordinates</div>
+                        <div style="margin-top: 8px;">
+                            ${points.map((point, idx) =>
+                    `<div style="font-size: 14px; color: #94a3b8; margin: 4px 0;">
+                                    P${idx + 1}: (${Number(point[0]).toFixed(1)}, ${Number(point[1]).toFixed(1)})
+                                </div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            } */
+
+            resultsHTML += '</div>';
+            return resultsHTML;
+        }
+
+        function renderFinalResults(data) {
+            const finalResults = document.getElementById('finalResults');
+            const finalResultsContent = document.getElementById('finalResultsContent');
+            finalResultsContent.innerHTML = buildFinalResultsHTML(data);
+            finalResults.style.display = 'block';
+        }
+
+        function hideFinalResults() {
+            const finalResults = document.getElementById('finalResults');
+            if (finalResults) {
+                finalResults.style.display = 'none';
+            }
+        }
+
+        function toggleRestartButton(show) {
+            const restartContainer = document.getElementById('restartButtonContainer');
+            const restartBtn = document.getElementById('restartCameraBtn');
+            if (!restartContainer || !restartBtn) {
+                return;
+            }
+            if (show) {
+                restartContainer.style.display = 'block';
+                restartBtn.disabled = false;
+                restartBtn.innerHTML = '<span class="stop-btn-icon">🔄</span><span class="stop-btn-text">Start Camera Again</span>';
+            } else {
+                restartContainer.style.display = 'none';
+            }
+        }
+
+        // Update detection results
+        function updateResults() {
+            fetch('{% url "detection_results" %}')
+                .then(response => response.json())
+                .then(data => {
+                    const statusIndicator = document.getElementById('statusIndicator');
+                    const statusText = document.getElementById('statusText');
+                    const captureButtonContainer = document.getElementById('captureButtonContainer');
+                    const captureBtn = document.getElementById('captureMeasurementBtn');
+                    const finalResults = document.getElementById('finalResults');
+
+                    if (data.camera_running) {
+                        statusIndicator.className = 'status-indicator active';
+                        statusText.textContent = 'Camera active - Detection running';
+                    } else if (data.capture_complete) {
+                        statusIndicator.className = 'status-indicator inactive';
+                        statusText.textContent = 'Maximum distance captured - camera stopped';
+                    } else {
+                        statusIndicator.className = 'status-indicator inactive';
+                        statusText.textContent = 'Camera inactive - press restart to begin';
+                        
+                    }
+
+                    document.getElementById('pulleyCount').textContent = data.pulley_count || 0;
+                    updateMetric('dist12', data.dist12);
+                    updateMetric('dist23', data.dist23);
+                    updateMetric('totalDist', data.total);
+
+                    if (data.expected_total !== null) {
+                        document.getElementById('expectedSection').style.display = 'block';
+                        document.getElementById('pulleyInfo').style.display = 'grid';
+                        updateMetric('expectedTotal', data.expected_total);
+                        updateMetric('lossMm', data.loss_mm);
+                        updateInfo('expectedDist12', data.expected_dist12);
+                        updateInfo('expectedDist23', data.expected_dist23);
+                    } else {
+                        document.getElementById('expectedSection').style.display = 'none';
+                        document.getElementById('pulleyInfo').style.display = 'none';
+                    }
+
+                    if (!captureCompleted && data.camera_running && captureBtn) {
+                        if (data.pulley_count >= 3 && !data.capture_requested) {
+                            captureButtonContainer.style.display = 'block';
+                            captureBtn.disabled = false;
+                            captureBtn.innerHTML = '<span class="stop-btn-icon">📸</span><span class="stop-btn-text">Capture Measurement</span>';
+                        } else if (data.capture_requested && !data.capture_complete) {
+                            captureButtonContainer.style.display = 'block';
+                            captureBtn.disabled = true;
+                            captureBtn.innerHTML = '<span class="stop-btn-icon">⏳</span><span class="stop-btn-text">Waiting for stable frame...</span>';
+                        } else {
+                            captureButtonContainer.style.display = 'none';
+                        }
+                    } else if (captureButtonContainer) {
+                        captureButtonContainer.style.display = 'none';
+                    }
+
+                    if (data.capture_complete) {
+                        renderFinalResults(data);
+                        toggleRestartButton(true);
+                        if (!captureCompleted) {
+                            captureCompleted = true;
+                            clearInterval(updateInterval);
+                        }
+                    } else {
+                        if (!data.camera_running) {
+                            toggleRestartButton(true);
+                        } else {
+                            toggleRestartButton(false);
+                            if (!captureCompleted) {
+                                hideFinalResults();
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching detection results:', error);
+                    document.getElementById('statusText').textContent = 'Error connecting to server';
+                    document.getElementById('statusIndicator').className = 'status-indicator inactive';
+                });
+        }
+
+        function updateMetric(elementId, value) {
+            const element = document.getElementById(elementId);
+            const valueSpan = element.querySelector('.value') || element;
+
+            if (value !== null && value !== undefined) {
+                valueSpan.textContent = value.toFixed(2);
+            } else {
+                valueSpan.textContent = '--';
+            }
+        }
+
+        function updateInfo(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (value !== null && value !== undefined) {
+                element.textContent = value.toFixed(2) + ' mm';
+            } else {
+                element.textContent = '-- mm';
+            }
+        }
+
+        // Handle video stream errors
+        const videoStream = document.getElementById('videoStream');
+        videoStream.onerror = function () {
+            this.style.display = 'none';
+            document.getElementById('videoPlaceholder').style.display = 'block';
+        };
+
+        videoStream.onload = function () {
+            this.style.display = 'block';
+            document.getElementById('videoPlaceholder').style.display = 'none';
+        };
+
+        // Request capture of the current alignment
+        function requestCaptureMeasurement() {
+            const captureBtn = document.getElementById('captureMeasurementBtn');
+            if (!captureBtn) {
+                return;
+            }
+            captureBtn.disabled = true;
+            captureBtn.innerHTML = '<span class="stop-btn-icon">⏳</span><span class="stop-btn-text">Submitting...</span>';
+
+            fetch('{% url "request_capture" %}')
+                .then(response => response.json())
+                .then(() => {
+                    captureBtn.innerHTML = '<span class="stop-btn-icon">⏳</span><span class="stop-btn-text">Waiting for stable frame...</span>';
+                })
+                .catch(error => {
+                    console.error('Error requesting capture:', error);
+                    captureBtn.disabled = false;
+                    captureBtn.innerHTML = '<span class="stop-btn-icon">📸</span><span class="stop-btn-text">Capture Measurement</span>';
+                    alert('Error requesting capture. Please try again.');
+                });
+        }
+
+        function restartCamera() {
+            const restartBtn = document.getElementById('restartCameraBtn');
+            if (!restartBtn) {
+                return;
+            }
+            restartBtn.disabled = true;
+            restartBtn.innerHTML = '<span class="stop-btn-icon">⏳</span><span class="stop-btn-text">Re-opening camera...</span>';
+            window.location.href = '{% url "yolo_camera" %}?restart=1&ts=' + Date.now();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const captureBtn = document.getElementById('captureMeasurementBtn');
+            if (captureBtn) {
+                captureBtn.addEventListener('click', requestCaptureMeasurement);
+            }
+            const restartBtn = document.getElementById('restartCameraBtn');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', restartCamera);
+            }
+        });
+
+        // Update results every 500ms
+        const updateInterval = setInterval(updateResults, 500);
+        updateResults(); // Initial call
+    </script>
+</body>
+
+</html> 
+
+

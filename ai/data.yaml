@@ -1,0 +1,6 @@
+train: D:\yolo_model_trian\train
+val: D:\yolo_model_trian\val
+
+
+nc: 2
+names: ['counter weight', 'pulley']

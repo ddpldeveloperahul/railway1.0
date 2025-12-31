@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support & Settings | Indian Railway</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
+
+    /* Header Section */
+    .support-header {
+      background: #002147;
+      padding: clamp(20px, 4vw, 30px) clamp(15px, 3vw, 20px);
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: clamp(10px, 2vw, 15px);
+      flex-wrap: wrap;
+    }
+
+    .back-button {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 18px);
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      transform: translateX(-3px);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .header-title h2 {
+      font-size: clamp(1.2rem, 2.8vw, 1.5rem);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .header-title i {
+      font-size: clamp(1.2rem, 2.8vw, 1.4rem);
+    }
+
+    .header-spacer {
+      width: clamp(80px, 15vw, 120px);
+    }
+
+    /* Main Container */
+    .container-main {
+      max-width: 900px;
+      margin: clamp(-15px, -2vw, -10px) auto 0;
+      padding: 0 clamp(15px, 3vw, 20px);
+    }
+
+    /* User Info Card */
+    .user-info-card {
+      background: white;
+      border-radius: 12px;
+      padding: clamp(20px, 4vw, 25px);
+      margin-bottom: clamp(20px, 4vw, 25px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: clamp(15px, 3vw, 20px);
+      border: 1px solid #e9ecef;
+    }
+
+    .user-avatar {
+      width: clamp(65px, 14vw, 75px);
+      height: clamp(65px, 14vw, 75px);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #002147;
+      flex-shrink: 0;
+    }
+
+    .user-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      color: #002147;
+      font-weight: 600;
+      font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+      margin-bottom: 4px;
+    }
+
+    .user-email {
+      color: #6c757d;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      word-break: break-word;
+    }
+
+    /* Section Headers */
+    .section-header {
+      color: #002147;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      margin-bottom: clamp(12px, 2.5vw, 15px);
+      padding: clamp(12px, 2.5vw, 15px) clamp(15px, 3vw, 18px);
+      background: white;
+      border-radius: 8px;
+      border-left: 4px solid #002147;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Settings Cards */
+    .settings-section {
+      background: white;
+      border-radius: 12px;
+      padding: clamp(15px, 3.5vw, 20px);
+      margin-bottom: clamp(18px, 4vw, 25px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e9ecef;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 2.5vw, 15px);
+      padding: clamp(14px, 3vw, 16px) clamp(10px, 2vw, 12px);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid transparent;
+    }
+
+    .setting-item:hover {
+      background: #f8f9fa;
+      border-color: #dee2e6;
+      transform: translateX(3px);
+    }
+
+    .setting-item:not(:last-child) {
+      margin-bottom: clamp(8px, 1.8vw, 10px);
+    }
+
+    .setting-icon {
+      width: clamp(42px, 9vw, 48px);
+      height: clamp(42px, 9vw, 48px);
+      background: #002147;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .setting-icon i {
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: white;
+    }
+
+    .setting-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .setting-title {
+      color: #002147;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      margin-bottom: 2px;
+    }
+
+    .setting-description {
+      color: #6c757d;
+      font-size: clamp(0.8rem, 1.7vw, 0.85rem);
+      line-height: 1.4;
+    }
+
+    .setting-arrow {
+      color: #002147;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    /* Help & Support Items */
+    .help-item {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(12px, 2.5vw, 15px);
+      padding: clamp(14px, 3vw, 16px) clamp(10px, 2vw, 12px);
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+
+    .help-item:not(:last-child) {
+      margin-bottom: clamp(10px, 2vw, 12px);
+    }
+
+    .help-item:hover {
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .help-icon-wrapper {
+      width: clamp(40px, 9vw, 46px);
+      height: clamp(40px, 9vw, 46px);
+      background: #002147;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .help-icon-wrapper i {
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: white;
+    }
+
+    .help-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .help-title {
+      color: #002147;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      margin-bottom: 3px;
+    }
+
+    .help-text {
+      color: #6c757d;
+      font-size: clamp(0.8rem, 1.7vw, 0.85rem);
+      line-height: 1.4;
+    }
+
+    .help-link {
+      color: #002147;
+      font-weight: 500;
+      font-size: clamp(0.8rem, 1.7vw, 0.85rem);
+      text-decoration: none;
+      margin-top: 5px;
+      display: inline-block;
+    }
+
+    .help-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Logout Button */
+    .logout-section {
+      background: white;
+      border-radius: 12px;
+      padding: clamp(20px, 4vw, 25px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e9ecef;
+    }
+
+    .logout-button {
+      width: 100%;
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: clamp(14px, 3vw, 16px);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .logout-button:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+      color: white;
+    }
+
+    /* App Version */
+    .app-version {
+      text-align: center;
+      color: #6c757d;
+      font-size: clamp(0.75rem, 1.6vw, 0.85rem);
+      padding: clamp(15px, 3vw, 20px) 0;
+      margin-top: clamp(15px, 3vw, 20px);
+    }
+
+    .app-version strong {
+      color: #002147;
+    }
+
+    /* Divider */
+    .section-divider {
+      height: 1px;
+      background: #e9ecef;
+      margin: clamp(8px, 1.8vw, 10px) 0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="support-header">
+    <div class="header-content">
+      <a href="{% url 'profile' %}" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back</span>
+      </a>
+      
+      <div class="header-title">
+        <i class="fas fa-cog"></i>
+        <h2>Support & Settings</h2>
+      </div>
+      
+      <div class="header-spacer"></div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container-main">
+    
+    <!-- User Info Card -->
+    {% comment %} <div class="user-info-card">
+      <img src="https://i.pinimg.com/736x/96/8f/14/968f14e1e60d0819dd356adfa5d614ec.jpg" alt="Profile" class="user-avatar" />
+      <div class="user-details">
+        <div class="user-name">{{ user.username|capfirst }}</div>
+        <div class="user-email">{{ user.email }}</div>
+      </div>
+    </div> {% endcomment %}
+
+    <!-- Account Settings -->
+    <h3 class="section-header mt-5">
+      <i class="fas fa-user-cog"></i> Account Settings
+    </h3>
+    
+    <div class="settings-section">
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-user-edit"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Edit Profile</div>
+          <div class="setting-description">Update your personal information and details</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="{% url 'change_password' %}" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-key"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Change Password</div>
+          <div class="setting-description">Update your account password for security</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="{% url 'reset_password' %}" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Reset Password</div>
+          <div class="setting-description">Reset your password if you've forgotten it</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Privacy & Security</div>
+          <div class="setting-description">Manage your privacy settings and security options</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+    </div>
+
+    <!-- App Settings -->
+    <h3 class="section-header">
+      <i class="fas fa-sliders-h"></i> Application Settings
+    </h3>
+    
+    <div class="settings-section">
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Notifications</div>
+          <div class="setting-description">Manage notification preferences</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-language"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Language</div>
+          <div class="setting-description">Choose your preferred language</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-palette"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Appearance</div>
+          <div class="setting-description">Customize app theme and display settings</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+    </div>
+
+    <!-- Help & Support -->
+    <h3 class="section-header">
+      <i class="fas fa-question-circle"></i> Help & Support
+    </h3>
+    
+    <div class="settings-section">
+      <div class="help-item">
+        <div class="help-icon-wrapper">
+          <i class="fas fa-life-ring"></i>
+        </div>
+        <div class="help-content">
+          <div class="help-title">Help Center</div>
+          <div class="help-text">Find answers to common questions and issues</div>
+          <a href="#" class="help-link">Visit Help Center →</a>
+        </div>
+      </div>
+
+      <div class="help-item">
+        <div class="help-icon-wrapper">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="help-content">
+          <div class="help-title">Contact Support</div>
+          <div class="help-text">Get in touch with our support team</div>
+          <a href="mailto:support@indianrailway.gov.in" class="help-link">support@indianrailway.gov.in</a>
+        </div>
+      </div>
+
+      <div class="help-item">
+        <div class="help-icon-wrapper">
+          <i class="fas fa-phone-alt"></i>
+        </div>
+        <div class="help-content">
+          <div class="help-title">24/7 Helpline</div>
+          <div class="help-text">Call us anytime for immediate assistance</div>
+          <a href="tel:139" class="help-link">139 (Toll Free)</a>
+        </div>
+      </div>
+
+      <div class="help-item">
+        <div class="help-icon-wrapper">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="help-content">
+          <div class="help-title">Documentation</div>
+          <div class="help-text">Learn how to use the pulley detection system</div>
+          <a href="#" class="help-link">View Documentation →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <h3 class="section-header">
+      <i class="fas fa-info-circle"></i> About & Legal
+    </h3>
+    
+    <div class="settings-section">
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">About Indian Railway</div>
+          <div class="setting-description">Learn more about our organization</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-file-contract"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Terms & Conditions</div>
+          <div class="setting-description">Read our terms of service</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Privacy Policy</div>
+          <div class="setting-description">Learn how we protect your data</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+
+      <a href="#" class="setting-item">
+        <div class="setting-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="setting-content">
+          <div class="setting-title">Rate This Application</div>
+          <div class="setting-description">Share your feedback with us</div>
+        </div>
+        <i class="fas fa-chevron-right setting-arrow"></i>
+      </a>
+    </div>
+
+    <!-- Logout Section -->
+    <div class="logout-section">
+      <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="logout-button">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout from Account</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- App Version -->
+    <div class="app-version">
+      <strong>Indian Railway Pulley Detection System</strong><br>
+      Version 1.0.0 | © 2025 Indian Railway. All Rights Reserved
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

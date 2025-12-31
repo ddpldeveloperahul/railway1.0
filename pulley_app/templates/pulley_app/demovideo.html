@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulley Detector Demo | Indian Railway</title>
+
+  <!-- Bootstrap + Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+
+    /* Header */
+    .demo-header {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      padding: clamp(25px, 5vw, 40px) clamp(15px, 3vw, 20px);
+      box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+      position: relative;
+    }
+
+    .back-button {
+      position: absolute;
+      top: clamp(20px, 4vw, 30px);
+      left: clamp(15px, 3vw, 20px);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 20px);
+      border-radius: 50px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      transform: translateX(-3px);
+    }
+
+    .demo-header h1 {
+      text-align: center;
+      font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: clamp(8px, 2vw, 12px);
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .demo-header p {
+      text-align: center;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Main Content */
+    .demo-container {
+      max-width: min(1200px, calc(100% - 30px));
+      margin: clamp(30px, 6vw, 50px) auto;
+    }
+
+    /* Video Section */
+    .video-card {
+      background: white;
+      border-radius: 25px;
+      padding: clamp(25px, 5vw, 40px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: clamp(30px, 6vw, 40px);
+    }
+
+    .video-card h2 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      margin-bottom: clamp(15px, 3vw, 20px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .video-card h2 i {
+      color: #0066cc;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      background: #000;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      height: auto;
+      min-height: clamp(300px, 50vw, 600px);
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Features Section */
+    .features-section {
+      background: white;
+      border-radius: 25px;
+      padding: clamp(25px, 5vw, 40px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: clamp(30px, 6vw, 40px);
+    }
+
+    .features-section h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      margin-bottom: clamp(20px, 4vw, 30px);
+      text-align: center;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 40vw, 280px), 1fr));
+      gap: clamp(20px, 4vw, 25px);
+    }
+
+    .feature-item {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: clamp(20px, 4vw, 25px);
+      border-radius: 15px;
+      border-left: 4px solid #0066cc;
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 102, 204, 0.15);
+    }
+
+    .feature-icon {
+      width: clamp(50px, 10vw, 60px);
+      height: clamp(50px, 10vw, 60px);
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+    }
+
+    .feature-icon i {
+      color: white;
+      font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+    }
+
+    .feature-item h4 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin-bottom: 10px;
+    }
+
+    .feature-item p {
+      color: #555;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Steps Section */
+    .steps-section {
+      background: white;
+      border-radius: 25px;
+      padding: clamp(25px, 5vw, 40px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .steps-section h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      margin-bottom: clamp(20px, 4vw, 30px);
+      text-align: center;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: start;
+      gap: clamp(15px, 3vw, 20px);
+      margin-bottom: clamp(20px, 4vw, 25px);
+      padding: clamp(15px, 3vw, 20px);
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .step-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.1);
+    }
+
+    .step-number {
+      width: clamp(45px, 9vw, 55px);
+      height: clamp(45px, 9vw, 55px);
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+    }
+
+    .step-content h4 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin-bottom: 8px;
+    }
+
+    .step-content p {
+      color: #555;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border-radius: 25px;
+      padding: clamp(30px, 6vw, 50px) clamp(20px, 4vw, 30px);
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 33, 71, 0.3);
+      margin-top: clamp(30px, 6vw, 40px);
+    }
+
+    .cta-section h3 {
+      color: white;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3.5vw, 2rem);
+      margin-bottom: clamp(12px, 2.5vw, 15px);
+    }
+
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      margin-bottom: clamp(25px, 5vw, 30px);
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffc107;
+      color: #002147;
+      padding: clamp(12px, 2.5vw, 15px) clamp(30px, 6vw, 40px);
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+    }
+
+    .btn-cta:hover {
+      background: #ffb300;
+      color: #002147;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 193, 7, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="demo-header">
+    <a href="{% url 'railway' %}" class="back-button">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back</span>
+    </a>
+    <h1><i class="fas fa-play-circle"></i> Pulley Detector Demo</h1>
+    <p>Watch how our AI-powered system detects and measures pulley distances in real-time</p>
+  </header>
+
+  <!-- Main Content -->
+  <div class="demo-container">
+    
+    <!-- Video Section -->
+    <div class="video-card">
+      <h2>
+        <i class="fas fa-video"></i>
+        Watch Demo Video
+      </h2>
+      <div class="video-wrapper">
+        <video controls autoplay muted loop>
+          <source src="./static/video/20251103_100218_annotated.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <h3>Key Features</h3>
+      <div class="feature-grid">
+        
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h4>AI-Powered Detection</h4>
+          <p>Advanced machine learning algorithms automatically identify pulleys with 99.8% accuracy.</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-ruler-combined"></i>
+          </div>
+          <h4>Precise Measurements</h4>
+          <p>Calculate exact distances between pulleys with millimeter-level precision.</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-tachometer-alt"></i>
+          </div>
+          <h4>Real-Time Processing</h4>
+          <p>Get instant results within 5 seconds of uploading your image.</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h4>Visual Analytics</h4>
+          <p>See annotated images with highlighted pulleys and measurement lines.</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-database"></i>
+          </div>
+          <h4>Data History</h4>
+          <p>Access all previous measurements and track changes over time.</p>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-download"></i>
+          </div>
+          <h4>Export Reports</h4>
+          <p>Download detailed reports in PDF or CSV format for documentation.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="steps-section">
+      <h3>How It Works</h3>
+      
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Upload Image</h4>
+          <p>Take a photo of the pulley system or upload an existing image from your device. Our system supports JPG, PNG, and JPEG formats.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>AI Analysis</h4>
+          <p>Our advanced AI algorithms process the image, detecting all pulleys and their positions using computer vision technology.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Measure Distances</h4>
+          <p>The system automatically calculates the distance between each pair of detected pulleys with millimeter precision.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>View Results</h4>
+          <p>Get instant results with annotated images showing detected pulleys, measurement lines, and exact distance values.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h4>Save & Export</h4>
+          <p>Save your measurements to history and export detailed reports for maintenance records and documentation.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

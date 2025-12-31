@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Location Finder | Indian Railway</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .location-btn {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .location-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        .location-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .location-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .location-modal-header {
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .location-modal-header h3 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .location-close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .location-close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+        }
+
+        .map-container {
+            position: relative;
+            height: 450px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Move zoom controls to right side */
+        .leaflet-control-zoom {
+            margin-left: 0 !important;
+            margin-right: 10px !important;
+        }
+
+        .current-location-btn {
+            position: absolute;
+            z-index: 1000;
+            top: 15px;
+            left: 15px;
+            /* ALWAYS LEFT */
+            padding: 12px 24px;
+            border: none;
+            background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .current-location-btn i {
+            font-size: 1.1rem;
+        }
+
+        .location-info {
+            padding: 25px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            text-align: center;
+            flex-shrink: 0;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .location-info.hidden {
+            display: none;
+        }
+
+        .location-info h4 {
+            color: #002147;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .location-info .city-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0066cc;
+            margin: 12px 0;
+            line-height: 1.2;
+        }
+
+        .location-info .coordinates {
+            font-size: 0.95rem;
+            color: #002147;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .coordinates span {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            background: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            text-align: center;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .loading-spinner i {
+            font-size: 2.5rem;
+            color: #0066cc;
+            margin-bottom: 12px;
+        }
+
+        .loading-spinner p {
+            color: #002147;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .location-display {
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .location-display h4 {
+            color: #002147;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .location-display .location-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0066cc;
+        }
+
+        .location-display .location-details {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Leaflet popup customization */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .leaflet-popup-content {
+            margin: 15px;
+            font-family: 'Poppins', Arial, sans-serif;
+            font-size: 1rem;
+            color: #002147;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .location-modal-content {
+                max-height: 95vh;
+            }
+
+            .map-container {
+                height: 350px;
+            }
+
+            .current-location-btn {
+                top: 10px;
+                padding: 10px 18px;
+                font-size: 0.85rem;
+            }
+
+            .location-info {
+                padding: 20px;
+                min-height: 140px;
+            }
+
+            .location-info .city-name {
+                font-size: 1.6rem;
+            }
+
+            .location-info h4 {
+                font-size: 1.1rem;
+            }
+
+            .location-display .location-value {
+                font-size: 1.5rem;
+            }
+
+            .location-modal-header h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .location-modal {
+                padding: 10px;
+            }
+
+            .location-modal-content {
+                border-radius: 15px;
+            }
+
+            .map-container {
+                height: 300px;
+            }
+
+            .current-location-btn {
+                position: absolute;
+                z-index: 1000;
+                top: 15px;
+                left: 15px;
+                /* 👈 LEFT permanently */
+
+                padding: 12px 24px;
+                border: none;
+                background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+                color: white;
+                border-radius: 50px;
+                cursor: pointer;
+                font-size: 0.95rem;
+                font-weight: 600;
+                box-shadow: 0 4px 15px rgba(0, 102, 204, 0.5);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+
+            .coordinates {
+                flex-direction: column;
+                gap: 8px !important;
+            }
+
+            .coordinates span {
+                width: 100%;
+            }
+
+            .location-info {
+                padding: 18px 15px;
+                min-height: 130px;
+            }
+
+            .location-info .city-name {
+                font-size: 1.4rem;
+            }
+
+            .loading-spinner {
+                padding: 20px 25px;
+            }
+
+            .loading-spinner i {
+                font-size: 2rem;
+            }
+
+            .loading-spinner p {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .map-container {
+                height: 280px;
+            }
+
+            .current-location-btn {
+                font-size: 0.75rem;
+                padding: 8px 14px;
+                margin-bottom: 10px;
+            }
+
+            .location-info .city-name {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <button class="location-btn" onclick="openLocationModal()">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Find My Location</span>
+        </button>
+        <button class="location-btn" style="margin-top: 10px;" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </button>
+
+        <div class="location-display" id="locationDisplay" style="display: none;">
+            <h4><i class="fas fa-map-marker-alt"></i> Your Location</h4>
+            <div class="location-value" id="displayCity">--</div>
+            <div class="location-details" id="displayDetails">Click the button to find your location</div>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div id="locationModal" class="location-modal">
+        <div class="location-modal-content">
+            <div class="location-modal-header">
+                <h3>
+                    <i class="fas fa-map-marked-alt"></i>
+                    Location Finder
+                </h3>
+                <button class="location-close-btn" onclick="closeLocationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="map-container">
+                <button class="current-location-btn" onclick="getCurrentLocation()">
+                    <i class="fas fa-crosshairs"></i>
+                    <span>Current Location</span>
+                </button>
+
+                <div class="loading-spinner" id="loadingSpinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Detecting your location...</p>
+                </div>
+
+                <div id="map"></div>
+            </div>
+
+            <div class="location-info hidden" id="locationInfo">
+                <h4>
+                    <i class="fas fa-check-circle"></i>
+                    Location Detected
+                </h4>
+                <div class="city-name" id="cityName">Loading...</div>
+                <div class="coordinates">
+                    <span><i class="fas fa-globe"></i> Lat: <span id="latitude">--</span></span>
+                    <span><i class="fas fa-globe"></i> Lng: <span id="longitude">--</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        let map;
+        let marker;
+        let currentCity = null;
+        let currentCoords = null;
+
+        // Initialize map when modal opens
+        function openLocationModal() {
+            document.getElementById('locationModal').style.display = 'flex';
+
+            // Initialize map only once
+            if (!map) {
+                setTimeout(() => {
+                    map = L.map('map', {
+                        zoomControl: true
+                    }).setView([22.5937, 78.9629], 5); // India bounds
+
+                    // Move zoom control to top-right
+                    map.zoomControl.setPosition('topright');
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    // Force map to recalculate size
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 100);
+                }, 100);
+            } else {
+                // Recalculate map size if already initialized
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 100);
+            }
+        }
+
+        // Close location modal
+        function closeLocationModal() {
+            document.getElementById('locationModal').style.display = 'none';
+        }
+
+        // Get current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                document.getElementById('loadingSpinner').classList.add('active');
+                document.getElementById('locationInfo').classList.add('hidden');
+
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // When location is fetched
+        function showPosition(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            currentCoords = { lat, lng };
+
+            // Remove existing marker
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            // Add new marker
+            marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 14);
+
+            // Reverse geocode to get city name
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    const city = data.address.city ||
+                        data.address.town ||
+                        data.address.village ||
+                        data.address.county ||
+                        data.address.state ||
+                        "Unknown Location";
+
+                    const state = data.address.state || "";
+                    const country = data.address.country || "";
+
+                    currentCity = city;
+
+                    // Update popup on map
+                    marker.bindPopup(`
+            <div style="text-align: center; min-width: 150px;">
+              <strong style="font-size: 1.2rem; color: #0066cc; display: block; margin-bottom: 5px;">📍 ${city}</strong>
+              <span style="color: #666; font-size: 0.9rem;">${state}, ${country}</span>
+            </div>
+          `).openPopup();
+
+                    // Update info section
+                    document.getElementById('cityName').textContent = city;
+                    document.getElementById('latitude').textContent = lat.toFixed(6);
+                    document.getElementById('longitude').textContent = lng.toFixed(6);
+                    document.getElementById('locationInfo').classList.remove('hidden');
+
+                    // Update main page display
+                    document.getElementById('locationDisplay').style.display = 'block';
+                    document.getElementById('displayCity').textContent = city;
+                    document.getElementById('displayDetails').textContent = `${state}, ${country} • ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+                    // Hide loading spinner
+                    document.getElementById('loadingSpinner').classList.remove('active');
+
+                    console.log('Location detected:', city, lat, lng);
+                })
+                .catch(error => {
+                    console.error('Geocoding error:', error);
+                    document.getElementById('loadingSpinner').classList.remove('active');
+                    alert('Could not fetch location details. Please try again.');
+                });
+        }
+
+        // Handle geolocation errors
+        function showError(error) {
+            document.getElementById('loadingSpinner').classList.remove('active');
+
+            let message = '';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "Location permission denied. Please allow location access in your browser settings.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "Location information is unavailable. Please try again.";
+                    break;
+                case error.TIMEOUT:
+                    message = "Location request timed out. Please try again.";
+                    break;
+                default:
+                    message = "An unknown error occurred while getting your location.";
+                    break;
+            }
+
+            alert(message);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('locationModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeLocationModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeLocationModal();
+            }
+        });
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>

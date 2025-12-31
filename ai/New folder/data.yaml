@@ -1,0 +1,18 @@
+# train: C:\Users\Dell Pc\Desktop\new_models\train
+# val: C:\Users\Dell Pc\Desktop\new_models\val
+
+# nc: 3
+# names: ["Pulley","objectA","pole"]
+
+
+path: C:/Users/Dell Pc/Desktop/new_models
+
+train: train/images
+val: val/images
+
+nc: 3
+names:
+  0: Pulley
+  1: objectA
+  2: pole
+
