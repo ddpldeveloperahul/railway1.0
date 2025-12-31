@@ -613,7 +613,7 @@ CAPTURE_SUBDIR = Path("best_captures")
 MEDIA_ROOT = Path(getattr(settings, "MEDIA_ROOT", Path(settings.BASE_DIR) / "media"))
 BEST_CAPTURE_DIR = MEDIA_ROOT / CAPTURE_SUBDIR
 REFERENCE_LABELS = ("poll", "pole", "counter weight")
-MODEL_PATH = Path(r"D:\PulleyDetector\ai\runs\detect\yolov11m-custom\weights\best.pt")
+MODEL_PATH = Path(r"D:\PulleyDetector\ai\New folder\runs\detect\yolov11m-custom\weights\best.pt")
 _yolo_model = None
 _model_lock = threading.Lock()
 
