@@ -817,7 +817,9 @@
                             <th><i class="fas fa-image"></i>Result Image</th>
                             <th><i class="fas fa-upload"></i>temperature</th>
                             <th><i class="fas fa-upload"></i>HTL_Values</th>
-                            <!-- <th><i class="fas fa-ruler"></i>Distances</th> -->
+                            <th><i class="fas fa-ruler"></i>Distances</th>
+                            <th><i class="fas fa-ruler"></i>Expected Total</th>
+                            <th><i class="fas fa-ruler"></i>Loss</th>
                             <th><i class="fas fa-calendar"></i>Created At</th>
                             <th><i class="fas fa-cog"></i>Actions</th>
                         </tr>
@@ -830,18 +832,16 @@
                                 </td>
                                 <td>
                                     <div class="user-info">
-                                        <div class="user-avatar">
-                                            {{ item.user.username|first|upper }}
-                                        </div>
+                                        {% comment %} <div class="user-avatar">
+                                            {{ item.user.username| capfirst}}
+                                        </div> {% endcomment %}
                                         <span class="user-name">{{ item.user.username|capfirst }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <!-- {{ item.pole_name }} -->
                                     <div class="user-info">
-                                        <!-- <div class="user-avatar">
-                                            {{ item.pole_name|first|upper }}
-                                        </div> -->
+                                
                                         <span class="user-name">{{ item.pole_name|capfirst }}</span>
                                     </div>
                                     <!-- <span class="badge badge-pole-name">{{ item.pole_name }}</span> -->
@@ -889,6 +889,15 @@
                                         <span style="color: #999;">—</span>
                                     {% endif %}
                                 </td> -->
+                                <td>
+                                    {{item.dist_p2_p3 | floatformat:2}} cm
+                                </td>
+                                <td>
+                                    {{item.expected_total | floatformat:2}} cm
+                                </td>
+                                 <td>
+                                    {{item.loss_mm | floatformat:2}} cm
+                                </td>
                                 <td>
                                     <div class="date-info">
                                         <div>
@@ -978,7 +987,52 @@
             tr[i].style.display = rowContainsText ? "" : "none";
         }
     }
+// Image modal
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = imageSrc;
+            document.body.style.overflow = 'hidden';
+        }
 
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Prevent modal from closing when clicking on image
+        document.getElementById('modalImage').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // Add search input clear functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (this.value === '') {
+                filterTable();
+            }
+        });
+
+        // Print functionality enhancement
+        window.onbeforeprint = function() {
+            document.querySelector('.bottom-nav').style.display = 'none';
+            document.querySelector('.search-box').style.display = 'none';
+            document.querySelector('.header-actions').style.display = 'none';
+        };
+
+        window.onafterprint = function() {
+            document.querySelector('.bottom-nav').style.display = 'flex';
+            document.querySelector('.search-box').style.display = 'block';
+            document.querySelector('.header-actions').style.display = 'flex';
+        };
 
     setTimeout(() => {
     document.querySelectorAll('.toast-message').forEach(el => el.remove());

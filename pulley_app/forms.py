@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django import forms
+
  
 CHART_TEMPERATURES = [10, 15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 50]
 CHART_HTL_VALUES = [200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800]
@@ -65,7 +65,43 @@ class ImageUploadForm(forms.Form):
     # )
     
     
+# class Upload_htl_temp(forms.Form):
+#     pole_name = forms.CharField(
+#         label="Pole Name",
+#         max_length=255,
+#         required=False,
+#         widget=forms.TextInput(attrs={'class': 'form-control'}),
+#         help_text="Enter the name/identifier of the pole (optional)"
+#     )
+#     # temperature = forms.ChoiceField(
+#     #     label="Ambient Temp (°C)",
+#     #     choices=TEMP_CHOICES,
+#     #     initial=str(35),
+#     #     widget=forms.Select(attrs={'class': 'form-select'}),
+#     #     help_text="Select a temperature value from the adjustment chart."
+#     # )
+#     temperature = forms.ChoiceField(
+#         label="Ambient Temp (°C)",
+#         choices=TEMP_CHOICES,
+#         initial=str(35),
+#         widget=forms.TextInput(attrs={'class': 'form-control'}),
+#         help_text="Select a temperature value from the adjustment chart."
+#     )
+#     htl = forms.ChoiceField(
+#         label="HTL (L/2) Value",
+#         choices=HTL_CHOICES,
+#         initial=str(400),
+#         widget=forms.Select(attrs={'class': 'form-select'}),
+#         help_text="Select the HTL (L/2) value (200–800) from the chart."
+#     )
+    
+    
+    
+
+from django import forms
+
 class Upload_htl_temp(forms.Form):
+
     pole_name = forms.CharField(
         label="Pole Name",
         max_length=255,
@@ -73,28 +109,34 @@ class Upload_htl_temp(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         help_text="Enter the name/identifier of the pole (optional)"
     )
-    # temperature = forms.ChoiceField(
-    #     label="Ambient Temp (°C)",
-    #     choices=TEMP_CHOICES,
-    #     initial=str(35),
-    #     widget=forms.Select(attrs={'class': 'form-select'}),
-    #     help_text="Select a temperature value from the adjustment chart."
-    # )
-    temperature = forms.ChoiceField(
-        label="Ambient Temp (°C)",
-        choices=TEMP_CHOICES,
-        initial=str(35),
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
-        help_text="Select a temperature value from the adjustment chart."
-    )
-    htl = forms.ChoiceField(
-        label="HTL (L/2) Value",
-        choices=HTL_CHOICES,
-        initial=str(400),
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        help_text="Select the HTL (L/2) value (200–800) from the chart."
-    )
-    
-    
-    
 
+    temperature = forms.FloatField(
+        label="Ambient Temp (°C)",
+        min_value=10,
+        max_value=50,
+        initial=35.0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.1',
+            'placeholder': 'e.g. 35'
+        }),
+        help_text="Enter ambient temperature in Celsius"
+    )
+
+    htl = forms.FloatField(
+        label="HTL (L/2) Value",
+        min_value=150,
+        max_value=800,
+        initial=400,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '1',
+            'placeholder': '150 – 800'
+        }),
+        help_text="Enter HTL (L/2) value (150–800)"
+    )
+    def clean_htl(self):
+        htl = self.cleaned_data.get('htl')
+        if htl < 150 or htl > 800:
+            raise ValidationError("HTL must be between 150 and 800")
+        return htl

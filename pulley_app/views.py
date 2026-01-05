@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 from math import sqrt
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
-from pulley_app.forms import ImageUploadForm, Upload_htl_temp
+# from pulley_app.forms import ImageUploadForm, Upload_htl_temp
+from .forms1 import ImageUploadForm
+from .forms import Upload_htl_temp
 import os
 from .models import PulleyDetection
 from django.contrib.auth import update_session_auth_hash
@@ -269,10 +271,15 @@ def detect_pulleys(request):
 
             names = result.names if hasattr(result, "names") else model.names
             boxes = result.boxes
+            print("box",boxes, "names", names,"----------------------------------")
             cls_indices = boxes.cls.cpu().numpy().astype(int)
+            print(cls_indices,"==================== indices =====================")
             xyxy = boxes.xyxy.cpu().numpy()
 
             # Collect pulley centers
+            img = cv2.imread(result.path)
+            if img is None:
+                raise RuntimeError(f"Failed to load image: {img}")
             pulley_points = []
             for i, c in enumerate(cls_indices):
                 label = names.get(int(c), str(c)) if isinstance(names, dict) else names[int(c)]
@@ -284,17 +291,36 @@ def detect_pulleys(request):
 
             if len(pulley_points) < 2:
                 raise RuntimeError("Found fewer than 2 pulleys. Need at least 2 to compute distance.")
-
+            print("Detected pulley points (cx, cy):", pulley_points)    
             # Sort left-to-right to define first, second, third
-            pulley_points.sort(key=lambda p: p[0])
+            #add the new setting for right-site to numbering
+            
+            img_h, img_w = img.shape[:2]
+            avg_pulley_x = sum(p[0] for p in pulley_points) / len(pulley_points)
+            if avg_pulley_x < img_w / 2:
+                PULLEY_DIRECTION = "LEFT"
+            else:
+                PULLEY_DIRECTION = "RIGHT"
+            
+            print("Detected pulley direction:", PULLEY_DIRECTION)
+            
+            # Correct sorting based on direction
+            if PULLEY_DIRECTION == "LEFT":
+                pulley_points.sort(key=lambda p: p[0])       # left → right
+            else:
+                pulley_points.sort(key=lambda p: -p[0])      # right → left
+            #end the new section
+            
+            
+            # pulley_points.sort(key=lambda p: p[0])
             p1 = pulley_points[0] if len(pulley_points) >= 1 else None
             p2 = pulley_points[1] if len(pulley_points) >= 2 else None
             p3 = pulley_points[2] if len(pulley_points) >= 3 else None
 
             # Load image for drawing
-            img = cv2.imread(IMAGE_PATH)
-            if img is None:
-                raise RuntimeError(f"Failed to load image: {IMAGE_PATH}")
+            # img = cv2.imread(IMAGE_PATH)
+            # if img is None:
+            #     raise RuntimeError(f"Failed to load image: {IMAGE_PATH}")
 
             # Draw points
             for (cx, cy) in pulley_points:
@@ -867,6 +893,21 @@ def yolo_camera(request):
         points, confidences = _collect_label_centers(result, ("pulley",))
         points, confidences = _order_points(points, confidences, reference_point)
         return points, confidences, reference_point
+    
+    # def get_pulley_centers(result):
+    #     reference_point = _select_reference_point(result)
+    #     points, confidences = _collect_label_centers(result, ("pulley",))
+    #     points, confidences = _order_points(points, confidences, reference_point)
+
+    #     # ✅ Keep only 2nd and 3rd pulleys
+    #     if len(points) >= 3:
+    #         points = points[1:3]
+    #         confidences = confidences[1:3]
+    #     else:
+    #         points = []
+    #         confidences = []
+
+    #     return points, confidences, reference_point
 
 
     def pixel_distance(p1, p2):
