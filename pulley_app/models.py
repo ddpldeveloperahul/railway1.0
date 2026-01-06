@@ -15,6 +15,10 @@ class PulleyDetection(models.Model):
     expected_total = models.FloatField(blank=True, null=True)
     loss_mm = models.FloatField(blank=True, null=True)
     distances = models.TextField(blank=True, null=True)
+    station = models.CharField(max_length=255, blank=True, null=True)
+    regulating_type = models.CharField(max_length=255, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

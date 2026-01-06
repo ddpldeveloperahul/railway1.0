@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pulley Distance Detector | Indian Railway</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <!-- Leaflet CSS for maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #002147;
+      padding-bottom: 90px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .page-header {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      text-align: center;
+      padding: clamp(20px, 4vw, 25px) clamp(10px, 2vw, 15px);
+      box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+    }
+
+    .page-header h1 {
+      font-weight: 700;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    /* Back Button */
+    .back-button-container {
+      position: fixed;
+      top: clamp(15px, 3vw, 20px);
+      left: clamp(15px, 3vw, 20px);
+      z-index: 100;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 18px);
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      transform: translateX(-3px);
+    }
+
+    .back-btn i {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+    }
+
+    /* Upload Section */
+    .upload-container {
+      max-width: min(800px, calc(100% - 30px));
+      margin: clamp(20px, 4vw, 30px) auto;
+    }
+
+    .upload-card {
+      background: white;
+      border-radius: 20px;
+      padding: clamp(25px, 5vw, 35px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      margin-bottom: 20px;
+    }
+
+    .upload-card h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      margin-bottom: clamp(15px, 3vw, 20px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      color: #002147;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-label i {
+      color: #0066cc;
+      width: 24px;
+      text-align: center;
+    }
+
+    .form-control {
+      border: 2px solid #e0e6ed;
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 15px);
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      transition: all 0.3s ease;
+      width: 100%;
+      background: white;
+      color: #002147;
+    }
+
+    .form-control:focus {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+      outline: none;
+    }
+
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23002147' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    /* File Upload Section */
+    .file-upload-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 2px dashed #dee2e6;
+    }
+
+    .file-input-wrapper {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .file-input-container {
+      flex: 1;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: clamp(12px, 2.5vw, 15px);
+      border: 2px solid #e0e6ed;
+      border-radius: 12px;
+      background: white;
+      color: #002147;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      cursor: pointer;
+    }
+
+    input[type="file"]::-webkit-file-upload-button {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 15px;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]::-webkit-file-upload-button:hover {
+      background: linear-gradient(135deg, #001a36 0%, #0055aa 100%);
+    }
+
+    input[type="file"]::file-selector-button {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 15px;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      background: linear-gradient(135deg, #001a36 0%, #0055aa 100%);
+    }
+
+    /* Camera Button */
+    .camera-button {
+      width: clamp(50px, 10vw, 60px);
+      height: clamp(50px, 10vw, 60px);
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
+      flex-shrink: 0;
+    }
+
+    .camera-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 102, 204, 0.35);
+    }
+
+    /* Temperature and Location Inputs */
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-icon-button {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .input-icon-button:hover {
+      background: linear-gradient(135deg, #001a36 0%, #0055aa 100%);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .input-with-icon input {
+      padding-right: 60px;
+    }
+
+    /* Row Layout for Form Groups */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary-custom {
+      flex: 1;
+      min-width: clamp(150px, 30vw, 200px);
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      padding: clamp(14px, 3vw, 16px) clamp(25px, 5vw, 35px);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+      cursor: pointer;
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+    }
+
+    .btn-secondary-custom {
+      flex: 1;
+      min-width: clamp(150px, 30vw, 200px);
+      background: white;
+      color: #0066cc;
+      border: 2px solid #0066cc;
+      padding: clamp(14px, 3vw, 16px) clamp(25px, 5vw, 35px);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn-secondary-custom:hover {
+      background: #0066cc;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow: hidden;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    /* Camera Modal Specific */
+    #cameraModal .modal-body {
+      padding: 0;
+      background: black;
+    }
+
+    #cameraStream {
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      display: block;
+    }
+
+    .camera-controls {
+      padding: 20px;
+      background: white;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    /* Map Container */
+    .map-container {
+      height: 400px;
+      width: 100%;
+    }
+
+    #locationMap {
+      height: 100%;
+      width: 100%;
+    }
+
+    .current-location-btn {
+      position: absolute;
+      z-index: 1000;
+      top: 15px;
+      left: 15px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Weather Search */
+    .weather-search-container {
+      padding: 20px;
+    }
+
+    .weather-search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .weather-search-box input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    .weather-search-box button {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 25px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .weather-result {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .weather-result .temperature {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #0066cc;
+      margin: 10px 0;
+    }
+
+    .weather-result .city-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #002147;
+      margin-bottom: 5px;
+    }
+
+    .weather-use-btn {
+      margin-top: 20px;
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Info Alert */
+    .info-alert {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-left: 4px solid #0066cc;
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 15px);
+      margin-bottom: clamp(20px, 4vw, 25px);
+      display: flex;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .info-alert i {
+      color: #0066cc;
+      font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .info-alert p {
+      margin: 0;
+      color: #002147;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      line-height: 1.5;
+    }
+
+    /* Results Section */
+    .results-container {
+      max-width: min(900px, calc(100% - 30px));
+      margin: clamp(20px, 4vw, 30px) auto;
+    }
+
+    .results-card {
+      background: white;
+      border-radius: 20px;
+      padding: clamp(25px, 5vw, 35px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      margin-bottom: clamp(20px, 4vw, 25px);
+    }
+
+    .results-card h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      margin-bottom: clamp(15px, 3vw, 20px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .distances-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .distances-list li {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: clamp(12px, 2.5vw, 15px) clamp(15px, 3vw, 20px);
+      border-radius: 12px;
+      margin-bottom: clamp(10px, 2vw, 12px);
+      border-left: 4px solid #0066cc;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      color: #002147;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .distances-list li i {
+      color: #0066cc;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+    }
+
+    .result-image-container {
+      background: white;
+      border-radius: 20px;
+      padding: clamp(20px, 4vw, 25px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      margin-bottom: clamp(20px, 4vw, 25px);
+    }
+
+    .result-image-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: clamp(15px, 3vw, 20px);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .result-image-header h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: clamp(6px, 1.2vw, 8px);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .zoom-btn {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      width: clamp(36px, 7.5vw, 42px);
+      height: clamp(36px, 7.5vw, 42px);
+      border-radius: 8px;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 102, 204, 0.2);
+    }
+
+    .zoom-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 102, 204, 0.3);
+    }
+
+    .zoom-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .zoom-level {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #002147;
+      padding: clamp(6px, 1.2vw, 8px) clamp(10px, 2vw, 14px);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: clamp(0.75rem, 1.6vw, 0.9rem);
+      min-width: clamp(55px, 11vw, 65px);
+      text-align: center;
+    }
+
+    .result-image-wrapper {
+      width: 100%;
+      border-radius: 15px;
+      overflow: auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      background: #f8f9fa;
+      max-height: 600px;
+      position: relative;
+      cursor: grab;
+    }
+
+    .result-image-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .result-image-wrapper img {
+      display: block;
+      transition: transform 0.3s ease;
+      transform-origin: center center;
+      max-width: none;
+      width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .map-container {
+        height: 300px;
+      }
+      
+      .modal-content {
+        max-height: 95vh;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .upload-card {
+        padding: 20px;
+      }
+      
+      .file-input-wrapper {
+        flex-direction: column;
+      }
+      
+      .camera-button {
+        width: 100%;
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <a href="{% url 'railway' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back to Home</span>
+    </a>
+  </div>
+
+  <!-- Header -->
+  <header class="page-header">
+    <h1><i class="fas fa-microscope"></i> Pulley Distance Detector</h1>
+    <p>Upload an image to detect and measure pulley distances accurately</p>
+  </header>
+
+  <!-- Main Upload Form -->
+  <div class="upload-container">
+    <div class="upload-card">
+      <h3>
+        <i class="fas fa-cloud-upload-alt"></i>
+        Upload Your Image
+      </h3>
+
+      <div class="info-alert">
+        <i class="fas fa-info-circle"></i>
+        <p>Please upload a clear image of the pulley system. Supported formats: JPG, PNG, JPEG. Maximum file size: 10MB.</p>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        {% csrf_token %}
+
+        <!-- File Upload Section -->
+        <div class="file-upload-section">
+          <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}" class="form-label">
+              <i class="fas fa-image"></i>
+              Select Image File
+            </label>
+            <div class="file-input-wrapper">
+              <div class="file-input-container">
+                <input type="file" name="image" id="{{ form.image.id_for_label }}" 
+                       class="form-control" accept="image/*" required>
+              </div>
+              <button type="button" class="camera-button" onclick="openCameraModal()" 
+                      title="Open Camera" aria-label="Open Camera">
+                <i class="fas fa-camera"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.pole_name.id_for_label }}" class="form-label">
+              <i class="fas fa-pole"></i>
+              Pole Name
+            </label>
+            {{ form.pole_name }}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.regulating_type.id_for_label }}" class="form-label">
+              <i class="fas fa-cog"></i>
+              Regulating Type
+            </label>
+            {{ form.regulating_type }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.station.id_for_label }}" class="form-label">
+              <i class="fas fa-train"></i>
+              Station
+            </label>
+            {{ form.station }}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.temperature.id_for_label }}" class="form-label">
+              <i class="fas fa-thermometer-half"></i>
+              Ambient Temp (°C)
+            </label>
+            <div class="input-with-icon">
+              {{ form.temperature }}
+              <button type="button" class="input-icon-button" onclick="openWeatherModal()" 
+                      title="Get Current Temperature">
+                <i class="fas fa-cloud-sun"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.htl.id_for_label }}" class="form-label">
+              <i class="fas fa-ruler"></i>
+              HTL (L/2) Value
+            </label>
+            {{ form.htl }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.latitude.id_for_label }}" class="form-label">
+              <i class="fas fa-globe-asia"></i>
+              Latitude
+            </label>
+            <div class="input-with-icon">
+              {{ form.latitude }}
+              <button type="button" class="input-icon-button" onclick="openLocationModal()" 
+                      title="Get Current Location">
+                <i class="fas fa-location-arrow"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.longitude.id_for_label }}" class="form-label">
+              <i class="fas fa-globe-asia"></i>
+              Longitude
+            </label>
+            <div class="input-with-icon">
+              {{ form.longitude }}
+              <button type="button" class="input-icon-button" onclick="openLocationModal()" 
+                      title="Get Current Location">
+                <i class="fas fa-location-arrow"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button type="submit" class="btn-primary-custom">
+            <i class="fas fa-search"></i>
+            <span>Upload & Detect</span>
+          </button>
+          
+          <button type="button" class="btn-secondary-custom" onclick="resetForm()">
+            <i class="fas fa-redo"></i>
+            <span>Reset Form</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Camera Modal -->
+  <div id="cameraModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-camera"></i> Camera</h3>
+        <button class="modal-close-btn" onclick="closeCameraModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <video id="cameraStream" autoplay playsinline></video>
+        <canvas id="photoCanvas" style="display: none;"></canvas>
+        <div class="camera-controls">
+          <button onclick="capturePhoto()" class="btn-primary-custom">
+            <i class="fas fa-camera"></i> Capture Photo
+          </button>
+          <button onclick="closeCameraModal()" class="btn-secondary-custom">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Modal -->
+  <div id="locationModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-map-marker-alt"></i> Location Finder</h3>
+        <button class="modal-close-btn" onclick="closeLocationModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="map-container">
+          <button class="current-location-btn" onclick="getCurrentLocation()">
+            <i class="fas fa-crosshairs"></i>
+            <span>Current Location</span>
+          </button>
+          <div id="locationMap"></div>
+        </div>
+        <div class="weather-search-container">
+          <div class="weather-result" id="locationResult">
+            <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: #0066cc;"></i>
+            <p>Click "Current Location" to get your coordinates</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather Modal -->
+  <div id="weatherModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-cloud-sun"></i> Temperature Finder</h3>
+        <button class="modal-close-btn" onclick="closeWeatherModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="weather-search-container">
+          <div class="weather-search-box">
+            <input type="text" id="cityInput" placeholder="Enter city name (e.g., Delhi, Mumbai)" 
+                   onkeypress="if(event.key === 'Enter') getWeather()">
+            <button onclick="getWeather()">
+              <i class="fas fa-search"></i> Search
+            </button>
+          </div>
+          <div class="weather-result" id="weatherResult">
+            <i class="fas fa-cloud" style="font-size: 2rem; color: #ccc;"></i>
+            <p>Enter a city name to get temperature</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  {% if result_image_url %}
+  <div class="results-container">
+    <!-- Distances Card -->
+    <div class="results-card">
+      <h3>
+        <i class="fas fa-ruler-combined"></i>
+        Detected Distances
+      </h3>
+      <ul class="distances-list">
+        {% for d in distances %}
+        <li>
+          <i class="fas fa-check-circle"></i>
+          <span>{{ d }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Processed Image -->
+    <div class="result-image-container">
+      <div class="result-image-header">
+        <h3>
+          <i class="fas fa-image"></i>
+          Processed Image
+        </h3>
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="zoomOut()" id="zoomOutBtn">
+            <i class="fas fa-search-minus"></i>
+          </button>
+          <div class="zoom-level" id="zoomLevel">100%</div>
+          <button class="zoom-btn" onclick="zoomIn()" id="zoomInBtn">
+            <i class="fas fa-search-plus"></i>
+          </button>
+          <button class="zoom-btn" onclick="resetZoom()">
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+      <div class="result-image-wrapper" id="imageWrapper">
+        <img src="{{ result_image_url }}" alt="Processed Image" id="resultImage" loading="lazy">
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // Camera functionality
+    let cameraStream = null;
+    let videoElement = null;
+    let map = null;
+    let locationMarker = null;
+    let currentWeatherTemp = null;
+
+    // Camera Modal
+    function openCameraModal() {
+      const modal = document.getElementById('cameraModal');
+      videoElement = document.getElementById('cameraStream');
+      modal.style.display = 'flex';
+
+      navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' },
+        audio: false 
+      })
+      .then(stream => {
+        cameraStream = stream;
+        videoElement.srcObject = stream;
+      })
+      .catch(err => {
+        console.error('Camera error:', err);
+        alert('Unable to access camera. Please check permissions.');
+        closeCameraModal();
+      });
+    }
+
+    function closeCameraModal() {
+      const modal = document.getElementById('cameraModal');
+      modal.style.display = 'none';
+      
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('cameraStream');
+      const canvas = document.getElementById('photoCanvas');
+      const fileInput = document.querySelector('input[name="image"]');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      canvas.toBlob(blob => {
+        const file = new File([blob], `camera-${Date.now()}.jpg`, {
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        });
+        
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+        
+        closeCameraModal();
+        alert('Photo captured successfully!');
+      }, 'image/jpeg', 0.95);
+    }
+
+    // Location Modal
+    function openLocationModal() {
+      const modal = document.getElementById('locationModal');
+      modal.style.display = 'flex';
+      
+      if (!map) {
+        setTimeout(() => {
+          map = L.map('locationMap').setView([20.5937, 78.9629], 5);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+          }).addTo(map);
+        }, 100);
+      } else {
+        setTimeout(() => map.invalidateSize(), 100);
+      }
+    }
+
+    function closeLocationModal() {
+      document.getElementById('locationModal').style.display = 'none';
+    }
+
+    function getCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported');
+        return;
+      }
+      
+      const resultDiv = document.getElementById('locationResult');
+      resultDiv.innerHTML = `
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #0066cc;"></i>
+        <p>Detecting location...</p>
+      `;
+      
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // Update map
+          if (locationMarker) map.removeLayer(locationMarker);
+          locationMarker = L.marker([lat, lng]).addTo(map);
+          map.setView([lat, lng], 15);
+          
+          // Update form fields
+          document.getElementById('{{ form.latitude.id_for_label }}').value = lat.toFixed(6);
+          document.getElementById('{{ form.longitude.id_for_label }}').value = lng.toFixed(6);
+          
+          // Get location name
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(res => res.json())
+            .then(data => {
+              const city = data.address.city || data.address.town || data.address.village || 'Unknown';
+              const state = data.address.state || '';
+              
+              resultDiv.innerHTML = `
+                <div class="city-name">
+                  <i class="fas fa-map-marker-alt"></i>
+                  ${city}, ${state}
+                </div>
+                <div class="temperature" style="font-size: 1.2rem; color: #002147;">
+                  <i class="fas fa-globe"></i>
+                  Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}
+                </div>
+                <button class="weather-use-btn" onclick="closeLocationModal()">
+                  <i class="fas fa-check"></i>
+                  Use This Location
+                </button>
+              `;
+            })
+            .catch(() => {
+              resultDiv.innerHTML = `
+                <div>Location detected!</div>
+                <button class="weather-use-btn" onclick="closeLocationModal()">
+                  <i class="fas fa-check"></i>
+                  Use This Location
+                </button>
+              `;
+            });
+        },
+        error => {
+          resultDiv.innerHTML = `
+            <div class="weather-error">
+              <i class="fas fa-exclamation-triangle"></i>
+              Location access denied. Please enable location permissions.
+            </div>
+          `;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+
+    // Weather Modal
+    function openWeatherModal() {
+      document.getElementById('weatherModal').style.display = 'flex';
+      document.getElementById('cityInput').focus();
+    }
+
+    function closeWeatherModal() {
+      document.getElementById('weatherModal').style.display = 'none';
+    }
+
+    async function getWeather() {
+      const city = document.getElementById('cityInput').value.trim();
+      const resultDiv = document.getElementById('weatherResult');
+      
+      if (!city) {
+        resultDiv.innerHTML = `
+          <div class="weather-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            Please enter a city name
+          </div>
+        `;
+        return;
+      }
+      
+      resultDiv.innerHTML = `
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #0066cc;"></i>
+        <p>Loading temperature...</p>
+      `;
+      
+      try {
+        const apiKey = '2955cdaefeaf8180dffabb6387c0f35a';
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`
+        );
+        const data = await response.json();
+        
+        if (data.cod !== 200) {
+          throw new Error('City not found');
+        }
+        
+        const temp = Math.round(data.main.temp * 10) / 10;
+        currentWeatherTemp = temp;
+        
+        resultDiv.innerHTML = `
+          <div class="city-name">
+            <i class="fas fa-map-marker-alt"></i>
+            ${data.name}, ${data.sys.country}
+          </div>
+          <div class="temperature">${temp}°C</div>
+          <div style="color: #002147; margin: 10px 0;">
+            ${data.weather[0].description}
+          </div>
+          <button class="weather-use-btn" onclick="useTemperature(${temp})">
+            <i class="fas fa-check"></i>
+            Use This Temperature
+          </button>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="weather-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            ${error.message || 'Error fetching weather data'}
+          </div>
+        `;
+      }
+    }
+
+    function useTemperature(temp) {
+      document.getElementById('{{ form.temperature.id_for_label }}').value = temp;
+      closeWeatherModal();
+      alert(`Temperature set to ${temp}°C`);
+    }
+
+    // Form Reset
+    function resetForm() {
+      if (confirm('Are you sure you want to reset the form?')) {
+        document.getElementById('uploadForm').reset();
+      }
+    }
+
+    // Modal close on outside click and escape
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.style.display = 'none';
+        }
+      });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+          modal.style.display = 'none';
+        });
+      }
+    });
+
+    // Image zoom functionality
+    let currentZoom = 100;
+    const minZoom = 50;
+    const maxZoom = 300;
+    const zoomStep = 25;
+
+    function updateZoom() {
+      const resultImage = document.getElementById('resultImage');
+      const zoomLevel = document.getElementById('zoomLevel');
+      const zoomInBtn = document.getElementById('zoomInBtn');
+      const zoomOutBtn = document.getElementById('zoomOutBtn');
+      
+      if (!resultImage) return;
+      
+      resultImage.style.transform = `scale(${currentZoom / 100})`;
+      if (zoomLevel) zoomLevel.textContent = `${currentZoom}%`;
+      if (zoomInBtn) zoomInBtn.disabled = currentZoom >= maxZoom;
+      if (zoomOutBtn) zoomOutBtn.disabled = currentZoom <= minZoom;
+    }
+
+    function zoomIn() {
+      if (currentZoom < maxZoom) {
+        currentZoom += zoomStep;
+        updateZoom();
+      }
+    }
+
+    function zoomOut() {
+      if (currentZoom > minZoom) {
+        currentZoom -= zoomStep;
+        updateZoom();
+      }
+    }
+
+    function resetZoom() {
+      currentZoom = 100;
+      updateZoom();
+      const wrapper = document.getElementById('imageWrapper');
+      if (wrapper) {
+        wrapper.scrollTop = 0;
+        wrapper.scrollLeft = 0;
+      }
+    }
+
+    // Initialize zoom if image exists
+    if (document.getElementById('resultImage')) {
+      updateZoom();
+    }
+  </script>
+</body>
+</html>

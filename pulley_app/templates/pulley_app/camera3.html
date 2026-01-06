@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pulley Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f1724;
+            color: #e2e8f0;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left, .right {
+            flex: 1;
+            padding: 16px;
+        }
+
+        .left {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(16,185,129,0.9);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .card {
+            background: #1a1f2e;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0b74de;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .btn-green {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-blue {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-red {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LEFT: CAMERA / CAPTURE -->
+    <div class="left">
+        <span class="badge" id="capturedBadge">📸 Captured Frame</span>
+
+        <!-- Live Stream -->
+        <img id="videoStream" src="{% url 'video_stream' %}" alt="Live Stream">
+
+        <!-- Captured Image -->
+        <img id="capturedFrame" style="display:none;">
+    </div>
+
+    <!-- RIGHT: DATA -->
+    <div class="right">
+
+        <div class="card">
+            <div>Status</div>
+            <div id="statusText">Initializing...</div>
+        </div>
+
+        <div class="card">
+            <div>Pulleys Detected</div>
+            <div class="value" id="pulleyCount">0</div>
+        </div>
+
+        <div class="card">
+            <div>Distance P1 → P2</div>
+            <div class="value" id="dist12">--</div>
+        </div>
+
+        <div class="card">
+            <div>Distance P2 → P3</div>
+            <div class="value" id="dist23">--</div>
+        </div>
+
+        <div class="card">
+            <div>Total Distance</div>
+            <div class="value" id="totalDist">--</div>
+        </div>
+
+        <!-- CAPTURE BUTTON -->
+        <button id="captureBtn" class="btn-green" style="display:none;">
+            📸 Capture Measurement
+        </button>
+
+        <!-- STOP CAMERA -->
+        <button id="stopBtn" class="btn-red" style="display:none;">
+            ⛔ Stop Camera
+        </button>
+
+        <!-- RESTART -->
+        <button id="restartBtn" class="btn-blue" style="display:none;">
+            🔄 Start Camera Again
+        </button>
+
+    </div>
+</div>
+
+<script>
+let polling;
+let frameCaptured = false;
+
+/* ---------- HELPERS ---------- */
+function setText(id, value) {
+    document.getElementById(id).textContent =
+        value !== null && value !== undefined ? value.toFixed(2) : '--';
+}
+
+/* ---------- SHOW CAPTURED IMAGE ---------- */
+function showCapturedFrame(imageUrl) {
+    if (!imageUrl) return;
+
+    const video = document.getElementById('videoStream');
+    const img = document.getElementById('capturedFrame');
+    const badge = document.getElementById('capturedBadge');
+
+    img.src = imageUrl + '?ts=' + Date.now();
+    img.style.display = 'block';
+    badge.style.display = 'block';
+    video.style.display = 'none';
+
+    frameCaptured = true;
+}
+
+/* ---------- POLL RESULTS ---------- */
+function updateResults() {
+    fetch("{% url 'detection_results' %}")
+        .then(r => r.json())
+        .then(data => {
+
+            document.getElementById('pulleyCount').textContent = data.pulley_count || 0;
+            setText('dist12', data.dist12);
+            setText('dist23', data.dist23);
+            setText('totalDist', data.total);
+
+            if (data.camera_running) {
+                document.getElementById('statusText').textContent = 'Camera Running';
+            } else {
+                document.getElementById('statusText').textContent = 'Camera Stopped';
+            }
+
+            /* Show Capture Button */
+            if (data.camera_running && data.pulley_count >= 3 && !data.capture_requested) {
+                document.getElementById('captureBtn').style.display = 'block';
+            }
+
+            /* Capture completed */
+            if (data.capture_complete && !frameCaptured) {
+                showCapturedFrame(data.capture_image_path);
+                document.getElementById('captureBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'block';
+                document.getElementById('restartBtn').style.display = 'block';
+                clearInterval(polling);
+            }
+        });
+}
+
+/* ---------- ACTIONS ---------- */
+document.getElementById('captureBtn').onclick = () => {
+    fetch("{% url 'request_capture' %}");
+};
+
+document.getElementById('stopBtn').onclick = () => {
+    clearInterval(polling);
+    document.getElementById('statusText').textContent = 'Camera Stopped Manually';
+};
+
+document.getElementById('restartBtn').onclick = () => {
+    window.location.href = "{% url 'yolo_camera' %}?restart=1&ts=" + Date.now();
+};
+
+/* ---------- START ---------- */
+polling = setInterval(updateResults, 500);
+updateResults();
+</script>
+
+</body>
+</html>

@@ -5,7 +5,11 @@ from pulley_app.models import PulleyDetection,DetectionRecord
 
 @admin.register(PulleyDetection)
 class PulleyDetectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'pole_name', 'uploaded_image', 'result_image','temperature_c','htl_value', 'dist_p1_p2','dist_p2_p3','total_distance','expected_total','distances','loss_mm', 'created_at')
+    list_display = ('id', 'user', 'pole_name', 'uploaded_image', 
+                    'result_image','temperature_c','htl_value', 
+                    'dist_p1_p2','dist_p2_p3','total_distance',
+                    'expected_total','loss_mm', 'created_at'
+                    ,'latitude','longitude','regulating_type','station')
     list_filter = ('created_at', 'user')
     search_fields = ('user__email', 'distances', 'pole_name')
 

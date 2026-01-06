@@ -12,8 +12,7 @@ from math import sqrt
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 # from pulley_app.forms import ImageUploadForm, Upload_htl_temp
-from .forms1 import ImageUploadForm
-from .forms import Upload_htl_temp
+from .forms import Upload_htl_temp,ImageUploadForm
 import os
 from .models import PulleyDetection
 from django.contrib.auth import update_session_auth_hash
@@ -69,7 +68,7 @@ def all_data_view(request):
             detections = PulleyDetection.objects.all().order_by('-created_at')
     else:
         return redirect('login')
-    return render(request, 'pulley_app/list_olddata.html', {"detections": detections, "search": query})
+    return render(request, 'pulley_app/list_olddata.html', {"c": detections, "search": query})
 
 
 def result_data_view(request):
@@ -209,8 +208,13 @@ def detect_pulleys(request):
             temp_raw = form.cleaned_data.get("temperature")
             CURRENT_TEMPERATURE_C = float(temp_raw) if temp_raw is not None else 35.0  # °C
             htl_raw = form.cleaned_data.get("htl")
+            regulating_type = form.cleaned_data.get("regulating_type", "").strip() or None
             htl_value = float(htl_raw) if htl_raw is not None else None
             pole_name = form.cleaned_data.get("pole_name", "").strip() or None
+            station = form.cleaned_data.get("station", "").strip() or None
+            latitude = form.cleaned_data.get("latitude")
+            longitude = form.cleaned_data.get("longitude")
+            print("latitute and longitute",latitude,longitude)
             if htl_value is None:
                 raise ValueError("HTL value is required.")
             htl_value = float(htl_value)
@@ -435,7 +439,7 @@ def detect_pulleys(request):
                 #3x left-site
                 # dist23_mm = 2.3*d_px * MM_PER_PIXEL
                 #4x
-                dist23_mm = 2.4*d_px * MM_PER_PIXEL+15
+                dist23_mm = 2.4*d_px * MM_PER_PIXEL - 25
                 cv2.line(img, (int(p2[0]), int(p2[1])), (int(p3[0]), int(p3[1])), (255, 0, 0), 2)
                 mid23 = (int((p2[0] + p3[0]) / 2), int((p2[1] + p3[1]) / 2))
                 cv2.putText(img, f"{dist23_mm:.2f} mm", mid23, cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
@@ -549,7 +553,11 @@ def detect_pulleys(request):
                     total_distance=total_distance_mm,
                     expected_total=expected_total_db,
                     loss_mm=loss_mm_db,
-                    distances=distance_summary
+                    distances=distance_summary,
+                    regulating_type=regulating_type,
+                    station=station,
+                    latitude=latitude,
+                    longitude=longitude,
                 )
                 
                 
@@ -559,7 +567,7 @@ def detect_pulleys(request):
     else:
         form = ImageUploadForm()
 
-    return render(request, "pulley_app/upload.html", {
+    return render(request, "pulley_app/upload4.html", {
         "form": form,
         "result_image_url": result_url,
         "distances": info_lines,
@@ -716,6 +724,51 @@ def save_detection_frame(frame):
     except Exception as exc:
         print(f"Error saving detection frame: {exc}")
         return None
+
+
+# import cv2, time, threading
+# from pathlib import Path
+# from django.http import JsonResponse
+# from django.conf import settings
+
+# detection_lock = threading.Lock()
+# camera_running = False
+
+# detection_data = {
+#     "points": [],
+#     "confidences": [],
+#     "segments": [],
+#     "capture_complete": False,
+#     "capture_image_path": None,
+# }
+# CAPTURE_SUBDIR = Path("captured")
+# BEST_CAPTURE_DIR = Path(settings.MEDIA_ROOT) / CAPTURE_SUBDIR
+# def save_detection_frame(frame):
+#     """Save captured frame and update detection state"""
+#     if frame is None:
+#         return None
+
+#     try:
+#         BEST_CAPTURE_DIR.mkdir(parents=True, exist_ok=True)
+
+#         filename = f"detection_{int(time.time())}.jpg"
+#         file_path = BEST_CAPTURE_DIR / filename
+
+#         cv2.imwrite(str(file_path), frame)
+
+#         image_relative_path = (CAPTURE_SUBDIR / filename).as_posix()
+
+#         global detection_data, camera_running
+#         detection_data["capture_image_path"] = settings.MEDIA_URL + image_relative_path
+#         detection_data["capture_complete"] = True
+#         camera_running = False
+
+#         return image_relative_path
+
+#     except Exception as e:
+#         print("Save error:", e)
+#         return None
+
 
 def index(request):
     return render(request, 'index.html')
@@ -1069,7 +1122,7 @@ def yolo_camera(request):
         total = None
         segment_distances = []
         text_y = 30
-
+        
         color_palette = [
             (0, 0, 255),
             (255, 0, 0),
@@ -1083,7 +1136,7 @@ def yolo_camera(request):
                 p_start = points[idx]
                 p_end = points[idx + 1]
                 segment_distance = pixel_distance(p_start, p_end) * MM_PER_PIXEL
-                segment_distance=segment_distance*2.7 - 5 #3x right-site
+                segment_distance=segment_distance*2.8 - 5 #3x right-site
                 segment_distances.append(segment_distance)
                 print("-----------segment_distance-----------:", segment_distance)
                 color = color_palette[idx % len(color_palette)]
@@ -1311,7 +1364,10 @@ def yolo_camera(request):
         detection_thread = threading.Thread(target=main, daemon=True)
         detection_thread.start()
         yolo_camera._detection_thread = detection_thread
-
+    
+    
+    
+   
     return render(request, 'pulley_app/camera.html')
 
 def video_stream(request):
@@ -1394,6 +1450,9 @@ def detection_results(request):
     
     return JsonResponse(data)
 
+
+
+
 def stop_camera(request):
     """API endpoint to stop the camera"""
     global camera_running, camera_cap, detection_lock
@@ -1458,6 +1517,7 @@ def request_capture(request):
         detection_data['capture_requested'] = True
         detection_data['capture_complete'] = False
     return JsonResponse({'capture_requested': True})
+
 
 
 

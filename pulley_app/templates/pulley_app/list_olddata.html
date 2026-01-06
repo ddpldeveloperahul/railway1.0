@@ -813,13 +813,16 @@
                             <th><i class="fas fa-hashtag"></i>ID</th>
                             <th><i class="fas fa-user"></i>User</th>
                             <th><i class="fas fa-user"></i>Pole Name</th>
-                            <th><i class="fas fa-upload"></i>Uploaded Image</th>
+                            {% comment %} <th><i class="fas fa-upload"></i>Uploaded Image</th> {% endcomment %}
                             <th><i class="fas fa-image"></i>Result Image</th>
                             <th><i class="fas fa-upload"></i>temperature</th>
                             <th><i class="fas fa-upload"></i>HTL_Values</th>
                             <th><i class="fas fa-ruler"></i>Distances</th>
                             <th><i class="fas fa-ruler"></i>Expected Total</th>
                             <th><i class="fas fa-ruler"></i>Loss</th>
+                            <th><i class="fas fa-ruler"></i>Regulating Type</th>
+                            <th><i class="fas fa-ruler"></i>Station</th>
+                            <th><i class="fas fa-ruler"></i>Lat-Long</th>
                             <th><i class="fas fa-calendar"></i>Created At</th>
                             <th><i class="fas fa-cog"></i>Actions</th>
                         </tr>
@@ -846,7 +849,7 @@
                                     </div>
                                     <!-- <span class="badge badge-pole-name">{{ item.pole_name }}</span> -->
                                 </td>
-                                <td>
+                                {% comment %} <td>
                                     {% if item.uploaded_image %}
                                         <div class="thumb-container">
                                             <img src="{{ item.uploaded_image.url }}" 
@@ -860,7 +863,7 @@
                                             <span>No Image</span>
                                         </div>
                                     {% endif %}
-                                </td>
+                                </td> {% endcomment %}
                                 <td>
                                     {% if item.result_image %}
                                         <div class="thumb-container">
@@ -895,8 +898,17 @@
                                 <td>
                                     {{item.expected_total | floatformat:2}} cm
                                 </td>
-                                 <td>
+                                <td>
                                     {{item.loss_mm | floatformat:2}} cm
+                                </td>
+                                <td>
+                                    {{item.regulating_type}} 
+                                </td>
+                                <td>
+                                    {{item.station}} 
+                                </td>
+                                <td>
+                                    {{item.latitude | floatformat:2}}- {{item.longitude | floatformat:2}}
                                 </td>
                                 <td>
                                     <div class="date-info">

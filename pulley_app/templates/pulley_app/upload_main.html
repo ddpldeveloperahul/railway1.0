@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pulley Distance Detector | Indian Railway</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #002147;
+      padding-bottom: 40px;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      text-align: center;
+      padding: clamp(20px, 4vw, 25px) clamp(10px, 2vw, 15px);
+      box-shadow: 0 4px 20px rgba(0, 33, 71, 0.3);
+    }
+
+    .page-header h1 {
+      font-weight: 700;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .upload-container {
+      max-width: min(650px, calc(100% - 30px));
+      margin: clamp(20px, 4vw, 30px) auto;
+    }
+
+    .upload-card {
+      background: white;
+      border-radius: 20px;
+      padding: clamp(25px, 5vw, 35px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .upload-card h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      margin-bottom: clamp(15px, 3vw, 20px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-label {
+      color: #002147;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-control, .form-select {
+      border: 2px solid #e0e6ed;
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 15px);
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      transition: all 0.3s ease;
+      width: 100%;
+      background: white;
+      color: #002147;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+      outline: none;
+    }
+
+    .file-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .file-input-group input[type="file"] {
+      flex: 1;
+      font-size: 16px;
+    }
+
+    .camera-button {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
+      flex-shrink: 0;
+    }
+
+    .camera-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 102, 204, 0.35);
+    }
+
+    .action-icons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .action-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border: 2px solid #0066cc;
+      border-radius: 12px;
+      color: #0066cc;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .action-icon:hover {
+      background: linear-gradient(135deg, #0066cc 0%, #004d99 100%);
+      color: white;
+      transform: translateY(-2px);
+    }
+.result-image-container {
+      background: white;
+      border-radius: 20px;
+      padding: clamp(20px, 4vw, 25px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      margin-bottom: clamp(20px, 4vw, 25px);
+    }
+
+    .result-image-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: clamp(15px, 3vw, 20px);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .result-image-header h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+      display: flex;
+      gap: clamp(6px, 1.2vw, 8px);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .zoom-btn {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      width: clamp(36px, 7.5vw, 42px);
+      height: clamp(36px, 7.5vw, 42px);
+      border-radius: 8px;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 102, 204, 0.2);
+    }
+
+    .zoom-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 102, 204, 0.3);
+    }
+
+    .zoom-btn:active {
+      transform: translateY(0);
+    }
+
+    .zoom-btn:disabled {
+      background: linear-gradient(135deg, #cccccc 0%, #999999 100%);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .zoom-level {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #002147;
+      padding: clamp(6px, 1.2vw, 8px) clamp(10px, 2vw, 14px);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: clamp(0.75rem, 1.6vw, 0.9rem);
+      min-width: clamp(55px, 11vw, 65px);
+      text-align: center;
+    }
+
+    .result-image-wrapper {
+      width: 100%;
+      border-radius: 15px;
+      overflow: auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      background: #f8f9fa;
+      max-height: 600px;
+      position: relative;
+      cursor: grab;
+    }
+
+    .result-image-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .result-image-wrapper::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .result-image-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .result-image-wrapper::-webkit-scrollbar-thumb {
+      background: #0066cc;
+      border-radius: 10px;
+    }
+
+    .result-image-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #004d99;
+    }
+
+    .result-image-wrapper img {
+      display: block;
+      transition: transform 0.3s ease;
+      transform-origin: center center;
+      max-width: none;
+      width: 100%;
+    }
+    .btn-primary-custom {
+      width: 100%;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      padding: clamp(14px, 3vw, 16px) clamp(20px, 4vw, 30px);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+      cursor: pointer;
+      margin-top: 25px;
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+    }
+
+    .info-alert {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-left: 4px solid #0066cc;
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 15px);
+      margin-bottom: clamp(20px, 4vw, 25px);
+      display: flex;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .info-alert i {
+      color: #0066cc;
+      font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .info-alert p {
+      margin: 0;
+      color: #002147;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      line-height: 1.5;
+    }
+
+    .back-button-container {
+      position: fixed;
+      top: clamp(15px, 3vw, 20px);
+      left: clamp(15px, 3vw, 20px);
+      z-index: 100;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 18px);
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      transform: translateX(-3px);
+    }
+
+    /* Camera Modal */
+    #cameraModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 9999;
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #cameraModal.active {
+      display: flex;
+    }
+
+    .camera-content {
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .camera-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #002147;
+    }
+
+    #cameraStream {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 15px;
+      background: #000;
+    }
+
+    .camera-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .camera-capture-btn {
+      background: linear-gradient(135deg, #0066cc 0%, #004080 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .camera-cancel-btn {
+      background: white;
+      color: #002147;
+      border: 2px solid #002147;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Temperature Modal */
+    .temp-modal, .location-modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(5px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .temp-modal.active, .location-modal.active {
+      display: flex;
+    }
+
+    .modal-content-custom {
+      background: white;
+      border-radius: 20px;
+      padding: 35px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header-custom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .modal-header-custom h3 {
+      color: #002147;
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-close-btn {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #002147;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      transform: rotate(90deg);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #e0e6ed;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: #002147;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+    }
+
+    .search-box button {
+      padding: 15px 25px;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .result-box {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .temp-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #0066cc;
+    }
+
+    .city-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #002147;
+    }
+
+    .use-btn {
+      margin-top: 20px;
+      padding: 14px 30px;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Location Modal Specific */
+    .location-modal-content {
+      max-width: 900px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .location-header {
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .location-header h3 {
+      color: white;
+      margin: 0;
+    }
+
+    .location-header .modal-close-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .map-container {
+      height: 450px;
+      position: relative;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .current-location-btn {
+      position: absolute;
+      z-index: 1000;
+      top: 15px;
+      left: 15px;
+      padding: 12px 24px;
+      border: none;
+      background: linear-gradient(135deg, #002147 0%, #0066cc 100%);
+      color: white;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(0, 102, 204, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .location-info {
+      padding: 25px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      text-align: center;
+    }
+
+    .location-info.hidden {
+      display: none;
+    }
+
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 25px 35px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      display: none;
+      text-align: center;
+      z-index: 1001;
+    }
+
+    .loading-spinner.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .file-input-group {
+        flex-direction: column;
+      }
+
+      .camera-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="back-button-container">
+    <a href="{% url 'railway' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      <span>Back</span>
+    </a>
+  </div>
+
+  <header class="page-header">
+    <h1><i class="fas fa-microscope"></i> Pulley Distance Detector</h1>
+    <p>Upload an image to detect and measure pulley distances accurately</p>
+  </header>
+
+  <div class="upload-container">
+    <div class="upload-card">
+      <h3>
+        <i class="fas fa-cloud-upload-alt"></i>
+        Upload Your Image
+      </h3>
+
+      <div class="info-alert">
+        <i class="fas fa-info-circle"></i>
+        <p>Please upload a clear image of the pulley system. Supported formats: JPG, PNG, JPEG. Maximum file size: 10MB.</p>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" id="mainForm">
+        {% csrf_token %}
+
+        <!-- Image Upload -->
+        <div class="mb-3">
+          <label for="formFile" class="form-label">
+            <i class="fas fa-image"></i>
+            Select Image File
+          </label>
+          <div class="file-input-group">
+            <input type="file" class="form-control" id="formFile" name="image" accept="image/*" required>
+            <button type="button" class="camera-button" onclick="openCamera()" title="Open Camera">
+              <i class="fas fa-camera"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pole Name -->
+        <div class="mb-3">
+          <label for="poleName" class="form-label">
+            <i class="fas fa-tag"></i>
+            Pole Name
+          </label>
+          <input type="text" class="form-control" id="poleName" name="pole_name" placeholder="Enter pole name">
+        </div>
+
+        <!-- Regulating Type -->
+        <div class="mb-3">
+          <label for="regulatingType" class="form-label">
+            <i class="fas fa-cog"></i>
+            Regulating Type
+          </label>
+          <select class="form-select" id="regulatingType" name="regulating_type">
+            <option value="3 PULLEY (MODIFIED)" selected>3 PULLEY (MODIFIED)</option>
+            <option value="3 PULLEY (SMALL)">3 PULLEY (SMALL)</option>
+            <option value="3 PULLEY TYPE">3 PULLEY TYPE</option>
+            <option value="5 PULLEY TYPE">5 PULLEY TYPE</option>
+          </select>
+        </div>
+
+        <!-- Station -->
+        <div class="mb-3">
+          <label for="station" class="form-label">
+            <i class="fas fa-train"></i>
+            Station
+          </label>
+          <select class="form-select" id="station" name="station">
+            <option value="HG-WD" selected>HG-WD</option>
+            <option value="NGS">NGS</option>
+            <option value="BOT">BOT</option>
+            <option value="GDGN">GDGN</option>
+            <option value="GUR">GUR</option>
+            <option value="SVG">SVG</option>
+          </select>
+        </div>
+
+        <!-- Temperature with Icon -->
+        <div class="mb-3">
+          <label for="temperature" class="form-label">
+            <i class="fas fa-temperature-high"></i>
+            Ambient Temp (°C)
+          </label>
+          <div style="display: flex; gap: 10px;">
+            <input type="number" class="form-control" id="temperature" name="temperature" value="35" step="0.1" required>
+            <div class="action-icon" onclick="openTempModal()" title="Get Temperature">
+              <i class="fas fa-thermometer-half"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTL Value -->
+        <div class="mb-3">
+          <label for="htl" class="form-label">
+            <i class="fas fa-ruler"></i>
+            HTL (L/2) Value
+          </label>
+          <input type="number" class="form-control" id="htl" name="htl" placeholder="Enter HTL value" step="0.01" min="150" max="800" required>
+        </div>
+
+        <!-- Latitude with Location Icon -->
+        <div class="mb-3">
+          <label for="latitude" class="form-label">
+            <i class="fas fa-map-marker-alt"></i>
+            Latitude
+          </label>
+          <div style="display: flex; gap: 10px;">
+            <input type="number" class="form-control" id="latitude" name="latitude" placeholder="Enter latitude" step="0.000001" required>
+            <div class="action-icon" onclick="openLocationModal()" title="Get Location">
+              <i class="fas fa-location-arrow"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Longitude -->
+        <div class="mb-3">
+          <label for="longitude" class="form-label">
+            <i class="fas fa-globe"></i>
+            Longitude
+          </label>
+          <input type="number" class="form-control" id="longitude" name="longitude" placeholder="Enter longitude" step="0.000001" required>
+        </div>
+
+        <button type="submit" class="btn-primary-custom">
+          <i class="fas fa-search"></i>
+          <span>Upload & Detect</span>
+        </button>
+      </form>
+    </div>
+  </div>
+<!-- Results Section -->
+  {% if result_image_url %}
+  <div class="results-container">
+    <!-- Distances Card -->
+    <div class="results-card">
+      <h3>
+        <i class="fas fa-ruler-combined"></i>
+        Detected Distances
+      </h3>
+      <ul class="distances-list">
+        {% for d in distances %}
+        <li>
+          <i class="fas fa-check-circle"></i>
+          <span>{{ d }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Processed Image with Zoom Controls -->
+    <div class="result-image-container">
+      <div class="result-image-header">
+        <h3>
+          <i class="fas fa-image"></i>
+          Processed Image
+        </h3>
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="zoomOut()" id="zoomOutBtn" title="Zoom Out">
+            <i class="fas fa-search-minus"></i>
+          </button>
+          <div class="zoom-level" id="zoomLevel">100%</div>
+          <button class="zoom-btn" onclick="zoomIn()" id="zoomInBtn" title="Zoom In">
+            <i class="fas fa-search-plus"></i>
+          </button>
+          <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">
+            <i class="fas fa-undo"></i>
+          </button>
+          <button class="zoom-btn" onclick="toggleFullscreen()" title="Fullscreen">
+            <i class="fas fa-expand"></i>
+          </button>
+        </div>
+      </div>
+      <div class="result-image-wrapper" id="imageWrapper">
+        <img src="{{ result_image_url }}" alt="Processed Image with Detected Pulleys" id="resultImage" loading="lazy">
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <!-- Camera Modal -->
+  <div id="cameraModal">
+    <button class="camera-close" onclick="closeCamera()">×</button>
+    <div class="camera-content">
+      <video id="cameraStream" autoplay playsinline></video>
+      <canvas id="photoCanvas" style="display: none;"></canvas>
+      <div class="camera-actions">
+        <button class="camera-capture-btn" onclick="capturePhoto()">
+          <i class="fas fa-camera"></i> Capture Photo
+        </button>
+        <button class="camera-cancel-btn" onclick="closeCamera()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Temperature Modal -->
+  <div id="tempModal" class="temp-modal">
+    <div class="modal-content-custom">
+      <div class="modal-header-custom">
+        <h3>
+          <i class="fas fa-cloud-sun"></i>
+          City Temperature
+        </h3>
+        <button class="modal-close-btn" onclick="closeTempModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="cityInput" placeholder="Enter city name (e.g., Delhi, Mumbai)" onkeypress="if(event.key==='Enter') getWeather()">
+        <button onclick="getWeather()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+
+      <div id="tempResult" class="result-box">
+        <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: #ccc;"></i>
+        <p style="color: #666; margin-top: 10px;">Enter a city name to get the current temperature</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Modal -->
+  <div id="locationModal" class="location-modal">
+    <div class="modal-content-custom location-modal-content">
+      <div class="location-header">
+        <h3>
+          <i class="fas fa-map-marked-alt"></i>
+          Location Finder
+        </h3>
+        <button class="modal-close-btn" onclick="closeLocationModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="map-container">
+        <button class="current-location-btn" onclick="getCurrentLocation()">
+          <i class="fas fa-crosshairs"></i>
+          <span>Current Location</span>
+        </button>
+
+        <div class="loading-spinner" id="loadingSpinner">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #0066cc; margin-bottom: 10px;"></i>
+          <p style="color: #002147; font-weight: 600; margin: 0;">Detecting your location...</p>
+        </div>
+
+        <div id="map"></div>
+      </div>
+
+      <div class="location-info hidden" id="locationInfo">
+        <h4 style="color: #002147; margin-bottom: 10px;">
+          <i class="fas fa-check-circle"></i>
+          Location Detected
+        </h4>
+        <div class="city-name" id="cityName">Loading...</div>
+        <div style="margin-top: 10px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+          <span style="background: white; padding: 8px 15px; border-radius: 20px; font-weight: 600;">
+            <i class="fas fa-globe"></i> Lat: <span id="latDisplay">--</span>
+          </span>
+          <span style="background: white; padding: 8px 15px; border-radius: 20px; font-weight: 600;">
+            <i class="fas fa-globe"></i> Lng: <span id="lngDisplay">--</span>
+          </span>
+        </div>
+        <button class="use-btn" onclick="useLocation()">
+          <i class="fas fa-check"></i>
+          Use This Location
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Camera functionality
+    let cameraStream = null;
+
+    function openCamera() {
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('cameraStream');
+      modal.classList.add('active');
+
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      })
+      .then(stream => {
+        cameraStream = stream;
+        video.srcObject = stream;
+      })
+      .catch(error => {
+        console.error('Camera error:', error);
+        alert('Unable to access camera. Please check permissions.');
+        closeCamera();
+      });
+    }
+
+    function closeCamera() {
+      const modal = document.getElementById('cameraModal');
+      const video = document.getElementById('cameraStream');
+      modal.classList.remove('active');
+      
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+      }
+      video.srcObject = null;
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('cameraStream');
+      const canvas = document.getElementById('photoCanvas');
+      const fileInput = document.getElementById('formFile');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      canvas.toBlob(blob => {
+        const file = new File([blob], `camera-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+        
+        closeCamera();
+        alert('Photo captured successfully!');
+      }, 'image/jpeg', 0.95);
+    }
+
+    // Temperature Modal
+    let currentTemp = null;
+
+    function openTempModal() {
+      document.getElementById('tempModal').classList.add('active');
+      document.getElementById('cityInput').focus();
+    }
+
+    function closeTempModal() {
+      document.getElementById('tempModal').classList.remove('active');
+    }
+
+    async function getWeather() {
+      const city = document.getElementById('cityInput').value.trim();
+      const resultDiv = document.getElementById('tempResult');
+
+      if (!city) {
+        resultDiv.innerHTML = '<div style="color: #c62828; font-weight: 600;">Please enter a city name.</div>';
+        return;
+      }
+
+      resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #0066cc;"></i><p style="color: #666; margin-top: 10px;">Loading...</p>';
+
+      const apiKey = '2955cdaefeaf8180dffabb6387c0f35a';
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod !== 200) {
+          resultDiv.innerHTML = '<div style="color: #c62828; font-weight: 600;">City not found. Please try another city.</div>';
+          return;
+        }
+
+        const temp = Math.round(data.main.temp * 10) / 10;
+        currentTemp = temp;
+
+        resultDiv.innerHTML = `
+          <div class="city-name">${data.name}, ${data.sys.country}</div>
+          <div class="temp-value">${temp}°C</div>
+          <div style="margin-top: 10px; color: #002147;">${data.weather[0].description}</div>
+          <button class="use-btn" onclick="useTemperature()">
+            <i class="fas fa-check"></i>
+            Use This Temperature
+          </button>
+        `;
+      } catch (error) {
+        console.error('Error:', error);
+        resultDiv.innerHTML = '<div style="color: #c62828; font-weight: 600;">Network error. Please try again.</div>';
+      }
+    }
+
+    function useTemperature() {
+      if (currentTemp !== null) {
+        document.getElementById('temperature').value = currentTemp;
+        closeTempModal();
+        
+        const tempInput = document.getElementById('temperature');
+        tempInput.style.transform = 'scale(1.05)';
+        tempInput.style.borderColor = '#0066cc';
+        
+        setTimeout(() => {
+          tempInput.style.transform = 'scale(1)';
+        }, 500);
+      }
+    }
+
+    // Location Modal
+    let map, marker;
+    let currentLat = null, currentLng = null;
+
+    function openLocationModal() {
+      document.getElementById('locationModal').classList.add('active');
+      
+      if (!map) {
+        setTimeout(() => {
+          map = L.map('map', { zoomControl: true }).setView([22.5937, 78.9629], 5);
+          map.zoomControl.setPosition('topright');
+          
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+          
+          setTimeout(() => map.invalidateSize(), 100);
+        }, 100);
+      } else {
+        setTimeout(() => map.invalidateSize(), 100);
+      }
+    }
+
+    function closeLocationModal() {
+      document.getElementById('locationModal').classList.remove('active');
+    }
+
+    function getCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by this browser.");
+        return;
+      }
+
+      document.getElementById('loadingSpinner').classList.add('active');
+      document.getElementById('locationInfo').classList.add('hidden');
+
+      navigator.geolocation.getCurrentPosition(showPosition, showError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    }
+
+    function showPosition(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      currentLat = lat;
+      currentLng = lng;
+
+      if (marker) map.removeLayer(marker);
+
+      marker = L.marker([lat, lng]).addTo(map);
+      map.setView([lat, lng], 14);
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+          const city = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state || "Unknown Location";
+          const state = data.address.state || "";
+          const country = data.address.country || "";
+
+          marker.bindPopup(`
+            <div style="text-align: center; min-width: 150px;">
+              <strong style="font-size: 1.2rem; color: #0066cc;">${city}</strong><br>
+              <span style="color: #666;">${state}, ${country}</span>
+            </div>
+          `).openPopup();
+
+          document.getElementById('cityName').textContent = city;
+          document.getElementById('latDisplay').textContent = lat.toFixed(6);
+          document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+          document.getElementById('locationInfo').classList.remove('hidden');
+          document.getElementById('loadingSpinner').classList.remove('active');
+        })
+        .catch(error => {
+          console.error('Geocoding error:', error);
+          document.getElementById('loadingSpinner').classList.remove('active');
+          alert('Could not fetch location details.');
+        });
+    }
+
+    function showError(error) {
+      document.getElementById('loadingSpinner').classList.remove('active');
+      
+      let message = '';
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Location permission denied. Please allow location access.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "Location information unavailable. Please try again.";
+          break;
+        case error.TIMEOUT:
+          message = "Location request timed out. Please try again.";
+          break;
+        default:
+          message = "An unknown error occurred.";
+      }
+      
+      alert(message);
+    }
+
+    function useLocation() {
+      if (currentLat !== null && currentLng !== null) {
+        document.getElementById('latitude').value = currentLat.toFixed(6);
+        document.getElementById('longitude').value = currentLng.toFixed(6);
+        closeLocationModal();
+        
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        
+        latInput.style.transform = 'scale(1.05)';
+        lngInput.style.transform = 'scale(1.05)';
+        latInput.style.borderColor = '#0066cc';
+        lngInput.style.borderColor = '#0066cc';
+        
+        setTimeout(() => {
+          latInput.style.transform = 'scale(1)';
+          lngInput.style.transform = 'scale(1)';
+        }, 500);
+      }
+    }
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeCamera();
+        closeTempModal();
+        closeLocationModal();
+      }
+    });
+
+    // Close modals on outside click
+    document.getElementById('tempModal').addEventListener('click', e => {
+      if (e.target.id === 'tempModal') closeTempModal();
+    });
+
+    document.getElementById('locationModal').addEventListener('click', e => {
+      if (e.target.id === 'locationModal') closeLocationModal();
+    });
+
+    document.getElementById('cameraModal').addEventListener('click', e => {
+      if (e.target.id === 'cameraModal') closeCamera();
+    });
+
+     // Zoom functionality
+    let currentZoom = 100;
+    const minZoom = 50;
+    const maxZoom = 300;
+    const zoomStep = 25;
+
+    const resultImage = document.getElementById('resultImage');
+    const zoomLevel = document.getElementById('zoomLevel');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const imageWrapper = document.getElementById('imageWrapper');
+
+    function updateZoom() {
+      if (!resultImage) return;
+
+      resultImage.style.transform = `scale(${currentZoom / 100})`;
+      if (zoomLevel) {
+        zoomLevel.textContent = `${currentZoom}%`;
+      }
+
+      if (zoomInBtn) {
+        zoomInBtn.disabled = currentZoom >= maxZoom;
+      }
+      if (zoomOutBtn) {
+        zoomOutBtn.disabled = currentZoom <= minZoom;
+      }
+
+      if (imageWrapper) {
+        imageWrapper.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+      }
+    }
+
+    function zoomIn() {
+      if (currentZoom < maxZoom) {
+        currentZoom += zoomStep;
+        updateZoom();
+      }
+    }
+
+    function zoomOut() {
+      if (currentZoom > minZoom) {
+        currentZoom -= zoomStep;
+        updateZoom();
+      }
+    }
+
+    function resetZoom() {
+      currentZoom = 100;
+      updateZoom();
+      if (imageWrapper) {
+        imageWrapper.scrollTop = 0;
+        imageWrapper.scrollLeft = 0;
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!imageWrapper) return;
+
+      if (!document.fullscreenElement) {
+        if (imageWrapper.requestFullscreen) {
+          imageWrapper.requestFullscreen();
+        } else if (imageWrapper.webkitRequestFullscreen) {
+          imageWrapper.webkitRequestFullscreen();
+        } else if (imageWrapper.msRequestFullscreen) {
+          imageWrapper.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      }
+    }
+  </script>
+</body>
+</html>

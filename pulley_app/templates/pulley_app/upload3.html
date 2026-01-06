@@ -1,0 +1,95 @@
+<form method="POST" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+
+  <!-- Image Upload -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-image"></i> Select Image File
+    </label>
+    <div class="file-input-wrapper">
+      <div class="file-input-container">
+        {{ form.image }}
+      </div>
+      <button type="button" class="camera-button" onclick="openCameraModal()">
+        <i class="fas fa-camera"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Pole Name -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-tag"></i> Pole Name
+    </label>
+    {{ form.pole_name }}
+  </div>
+
+  <!-- Regulating Type -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-cogs"></i> Regulating Type
+    </label>
+    {{ form.regulating_type }}
+  </div>
+
+  <!-- Station -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-train"></i> Station
+    </label>
+    {{ form.station }}
+  </div>
+
+  <!-- Temperature -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-thermometer-half"></i> Ambient Temp (°C)
+    </label>
+    {{ form.temperature }}
+  </div>
+
+  <!-- HTL -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-ruler"></i> HTL (L/2) Value
+    </label>
+    {{ form.htl }}
+    {% if form.htl.errors %}
+      <div class="text-danger small">{{ form.htl.errors.0 }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Latitude -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-map-marker-alt"></i> Latitude
+    </label>
+    {{ form.latitude }}
+  </div>
+
+  <!-- Longitude -->
+  <div class="mb-3">
+    <label class="form-label">
+      <i class="fas fa-globe"></i> Longitude
+    </label>
+    {{ form.longitude }}
+  </div>
+
+  <!-- Buttons -->
+  <div class="button-group vertical-actions">
+    <div class="button-row">
+      <a href="{% url 'get_current_temperature' %}" class="btn-secondary-custom">
+        <i class="fas fa-temperature-high"></i> Temperature
+      </a>
+      <a href="{% url 'get_current_location' %}" class="btn-secondary-custom">
+        <i class="fas fa-location-arrow"></i> Location
+      </a>
+    </div>
+
+    <div class="button-row">
+      <button type="submit" class="btn-primary-custom full-width">
+        <i class="fas fa-search"></i> Upload & Detect
+      </button>
+    </div>
+  </div>
+</form>
