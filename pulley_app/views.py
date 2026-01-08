@@ -265,7 +265,7 @@ def detect_pulleys(request):
 
             model = YOLO(MODEL_PATH)
 
-            results = model.predict(source=IMAGE_PATH, save=True, verbose=False)
+            results = model.predict(source=IMAGE_PATH, save=False, verbose=False)
             if not results:
                 raise RuntimeError("No results returned by the model.")
 

@@ -893,13 +893,13 @@
                                     {% endif %}
                                 </td> -->
                                 <td>
-                                    {{item.dist_p2_p3 | floatformat:2}} cm
+                                    {{item.dist_p2_p3 | floatformat:2}} mm
                                 </td>
                                 <td>
-                                    {{item.expected_total | floatformat:2}} cm
+                                    {{item.expected_total | floatformat:2}} mm
                                 </td>
                                 <td>
-                                    {{item.loss_mm | floatformat:2}} cm
+                                    {{item.loss_mm | floatformat:2}} mm
                                 </td>
                                 <td>
                                     {{item.regulating_type}} 
@@ -908,17 +908,17 @@
                                     {{item.station}} 
                                 </td>
                                 <td>
-                                    {{item.latitude | floatformat:2}}- {{item.longitude | floatformat:2}}
+                                    {{item.latitude}} - {{item.longitude}} 
                                 </td>
                                 <td>
                                     <div class="date-info">
                                         <div>
                                             <i class="fas fa-calendar-day"></i>
-                                            {{ item.created_at|date:"M d, Y" }}
+                                            {{ item.created_at | date:"M d, Y" }}
                                         </div>
                                         <small>
                                             <i class="fas fa-clock"></i>
-                                            {{ item.created_at|date:"H:i" }}
+                                            {{ item.created_at | date:"H:i" }}
                                         </small>
                                     </div>
                                 </td>
