@@ -68,7 +68,7 @@ def all_data_view(request):
             detections = PulleyDetection.objects.all().order_by('-created_at')
     else:
         return redirect('login')
-    return render(request, 'pulley_app/list_olddata.html', {"c": detections, "search": query})
+    return render(request, 'pulley_app/list_olddata.html', {"detections": detections, "search": query})
 
 
 def result_data_view(request):
@@ -1766,7 +1766,7 @@ def export_excel(request):
         'ID', 'User', 'Pole Name', 'Uploaded Image', 'Result Image',
         'Temperature C', 'HTL Value', 'Dist P1 P2', 'Dist P2 P3',
         'Total Distance', 'Expected Total', 'Loss mm',
-        'Distances', 'Created At'
+        'Distances','latitude','longitude', 'Created At'
     ])
 
     detections = PulleyDetection.objects.filter(
@@ -1788,6 +1788,8 @@ def export_excel(request):
             d.expected_total,
             d.loss_mm,
             str(d.distances),
+            d.latitude,
+            d.longitude,
             d.created_at.strftime("%Y-%m-%d %H:%M:%S") if d.created_at else ""
         ])
 
