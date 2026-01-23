@@ -299,23 +299,52 @@ def detect_pulleys(request):
             # Sort left-to-right to define first, second, third
             #add the new setting for right-site to numbering
             
-            img_h, img_w = img.shape[:2]
-            avg_pulley_x = sum(p[0] for p in pulley_points) / len(pulley_points)
-            if avg_pulley_x < img_w / 2:
-                PULLEY_DIRECTION = "LEFT"
-            else:
-                PULLEY_DIRECTION = "RIGHT"
+            # img_h, img_w = img.shape[:2]
+            # avg_pulley_x = sum(p[0] for p in pulley_points) / len(pulley_points)
+            # if avg_pulley_x < img_w / 2:
+            #     PULLEY_DIRECTION = "LEFT"
+            # else:
+            #     PULLEY_DIRECTION = "RIGHT"
             
-            print("Detected pulley direction:", PULLEY_DIRECTION)
+            # print("Detected pulley direction:", PULLEY_DIRECTION)
             
-            # Correct sorting based on direction
-            if PULLEY_DIRECTION == "LEFT":
-                pulley_points.sort(key=lambda p: p[0])       # left → right
-            else:
-                pulley_points.sort(key=lambda p: -p[0])      # right → left
+            # # Correct sorting based on direction
+            # if PULLEY_DIRECTION == "LEFT":
+            #     pulley_points.sort(key=lambda p: p[0])       # left → right
+            # else:
+            #     pulley_points.sort(key=lambda p: -p[0])      # right → left
             #end the new section
+            # image width
+            # Detected pulley points (cx, cy)
+            # pulley_points collect hone ke baad
+            # print("Detected pulleys:", pulley_points)
+
+            img_h, img_w = img.shape[:2]
+
+            # --- NEW: pole side detection using edge density ---
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            edges = cv2.Canny(gray, 80, 160)
+
+            left_edges = np.sum(edges[:, :img_w//3])
+            right_edges = np.sum(edges[:, 2*img_w//3:])
+
+            if left_edges > right_edges:
+                POLE_SIDE = "LEFT"
+            else:
+                POLE_SIDE = "RIGHT"
+
+            print("Detected POLE SIDE:", POLE_SIDE)
             
-            
+
+            if POLE_SIDE == "LEFT":
+                pulley_points.sort(key=lambda p: p[0])
+            else:
+                pulley_points.sort(key=lambda p: -p[0])
+
+            p1, p2, p3 = pulley_points[:3]
+
+
+        
             # pulley_points.sort(key=lambda p: p[0])
             p1 = pulley_points[0] if len(pulley_points) >= 1 else None
             p2 = pulley_points[1] if len(pulley_points) >= 2 else None
@@ -726,48 +755,6 @@ def save_detection_frame(frame):
         return None
 
 
-# import cv2, time, threading
-# from pathlib import Path
-# from django.http import JsonResponse
-# from django.conf import settings
-
-# detection_lock = threading.Lock()
-# camera_running = False
-
-# detection_data = {
-#     "points": [],
-#     "confidences": [],
-#     "segments": [],
-#     "capture_complete": False,
-#     "capture_image_path": None,
-# }
-# CAPTURE_SUBDIR = Path("captured")
-# BEST_CAPTURE_DIR = Path(settings.MEDIA_ROOT) / CAPTURE_SUBDIR
-# def save_detection_frame(frame):
-#     """Save captured frame and update detection state"""
-#     if frame is None:
-#         return None
-
-#     try:
-#         BEST_CAPTURE_DIR.mkdir(parents=True, exist_ok=True)
-
-#         filename = f"detection_{int(time.time())}.jpg"
-#         file_path = BEST_CAPTURE_DIR / filename
-
-#         cv2.imwrite(str(file_path), frame)
-
-#         image_relative_path = (CAPTURE_SUBDIR / filename).as_posix()
-
-#         global detection_data, camera_running
-#         detection_data["capture_image_path"] = settings.MEDIA_URL + image_relative_path
-#         detection_data["capture_complete"] = True
-#         camera_running = False
-
-#         return image_relative_path
-
-#     except Exception as e:
-#         print("Save error:", e)
-#         return None
 
 
 def index(request):
@@ -2062,6 +2049,14 @@ def export_pdf(request):
 
     doc.build([table])
     return response
+
+
+
+
+
+
+
+
 
 
 

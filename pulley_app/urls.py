@@ -52,7 +52,6 @@ urlpatterns = [
     path('download_excel1/', views.export_excel1, name='download_excel1'),
     path('download_pdf/', views.export_pdf, name='download_pdf'),
     
-    
     #download for id 
     path('records/<int:record_id>/download-csv/', views.download_record_csv, name='download_record_csv'),
     path('records2/<int:record_id>/download-csv/', views.download_record_csv2, name='download_record_csv2'),
