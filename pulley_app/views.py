@@ -184,6 +184,7 @@ def detect_pulleys(request):
             print("image_file",image_file)
             # MODEL_PATH = r"D:\PulleyDetector\ai\runs\detect\yolov11m-custom\weights\best.pt"
             MODEL_PATH = r"D:\PulleyDetector\ai\New folder\runs\detect\yolov11m-custom\weights\best.pt"
+            # MODEL_PATH = "/var/www/railway1.0/ai/New folder/runs/detect/yolov11m-custom/weights/best.pt"
             
             uploads_storage = FileSystemStorage(
                 location=os.path.join(settings.MEDIA_ROOT, 'uploads'),
