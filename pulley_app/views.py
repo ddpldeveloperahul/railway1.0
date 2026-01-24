@@ -298,44 +298,17 @@ def detect_pulleys(request):
             print("Detected pulley points (cx, cy):", pulley_points)    
             # Sort left-to-right to define first, second, third
             #add the new setting for right-site to numbering
-            
-            # img_h, img_w = img.shape[:2]
-            # avg_pulley_x = sum(p[0] for p in pulley_points) / len(pulley_points)
-            # if avg_pulley_x < img_w / 2:
-            #     PULLEY_DIRECTION = "LEFT"
-            # else:
-            #     PULLEY_DIRECTION = "RIGHT"
-            
-            # print("Detected pulley direction:", PULLEY_DIRECTION)
-            
-            # # Correct sorting based on direction
-            # if PULLEY_DIRECTION == "LEFT":
-            #     pulley_points.sort(key=lambda p: p[0])       # left → right
-            # else:
-            #     pulley_points.sort(key=lambda p: -p[0])      # right → left
-            #end the new section
-            # image width
-            # Detected pulley points (cx, cy)
-            # pulley_points collect hone ke baad
-            # print("Detected pulleys:", pulley_points)
-
             img_h, img_w = img.shape[:2]
-
             # --- NEW: pole side detection using edge density ---
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             edges = cv2.Canny(gray, 80, 160)
-
             left_edges = np.sum(edges[:, :img_w//3])
             right_edges = np.sum(edges[:, 2*img_w//3:])
-
             if left_edges > right_edges:
                 POLE_SIDE = "LEFT"
             else:
                 POLE_SIDE = "RIGHT"
-
             print("Detected POLE SIDE:", POLE_SIDE)
-            
-
             if POLE_SIDE == "LEFT":
                 pulley_points.sort(key=lambda p: p[0])
             else:
